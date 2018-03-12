@@ -15,17 +15,16 @@
  */
 package com.holonplatform.example.test;
 
+import com.holonplatform.http.HttpHeaders;
+import com.holonplatform.http.HttpStatus;
+import com.holonplatform.http.rest.ResponseEntity;
+import com.holonplatform.http.rest.RestClient;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.holonplatform.http.HttpHeaders;
-import com.holonplatform.http.HttpStatus;
-import com.holonplatform.http.rest.ResponseEntity;
-import com.holonplatform.http.rest.RestClient;
 
 /**
  * API unit test
@@ -34,39 +33,39 @@ import com.holonplatform.http.rest.RestClient;
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class ApiTest {
 
-	@Test
-	public void testPing() {
+    @Test
+    public void testPing() {
 
-		ResponseEntity<String> response = RestClient.forTarget("http://localhost:9999/api").request().path("ping")
-				.get(String.class);
+        ResponseEntity<String> response = RestClient.forTarget("http://localhost:9999/api").request().path("ping")
+                .get(String.class);
 
-		Assert.assertEquals(HttpStatus.OK, response.getStatus());
-		Assert.assertEquals("pong", response.as(String.class).orElse(null));
-	}
+        Assert.assertEquals(HttpStatus.OK, response.getStatus());
+        Assert.assertEquals("pong", response.as(String.class).orElse(null));
+    }
 
-	@Test
-	public void testApiDocs() {
+    @Test
+    public void testApiDocs() {
 
-		// as JSON
-		ResponseEntity<String> response = RestClient.forTarget("http://localhost:9999/api/docs").request()
-				.get(String.class);
-		Assert.assertEquals(HttpStatus.OK, response.getStatus());
-		Assert.assertTrue(response.getPayload().isPresent());
-		Assert.assertEquals("application/json", response.getHeaderValue(HttpHeaders.CONTENT_TYPE).orElse(null));
+        // as JSON
+        ResponseEntity<String> response = RestClient.forTarget("http://localhost:9999/api/docs").request()
+                .get(String.class);
+        Assert.assertEquals(HttpStatus.OK, response.getStatus());
+        Assert.assertTrue(response.getPayload().isPresent());
+        Assert.assertEquals("application/json", response.getHeaderValue(HttpHeaders.CONTENT_TYPE).orElse(null));
 
-		// as YAML
-		response = RestClient.forTarget("http://localhost:9999/api/docs").request().queryParameter("type", "yaml")
-				.get(String.class);
-		Assert.assertEquals(HttpStatus.OK, response.getStatus());
-		Assert.assertTrue(response.getPayload().isPresent());
-		Assert.assertEquals("application/yaml", response.getHeaderValue(HttpHeaders.CONTENT_TYPE).orElse(null));
-	}
+        // as YAML
+        response = RestClient.forTarget("http://localhost:9999/api/docs").request().queryParameter("type", "yaml")
+                .get(String.class);
+        Assert.assertEquals(HttpStatus.OK, response.getStatus());
+        Assert.assertTrue(response.getPayload().isPresent());
+        Assert.assertEquals("application/yaml", response.getHeaderValue(HttpHeaders.CONTENT_TYPE).orElse(null));
+    }
 
-	@Test
-	public void testActuator() {
-		ResponseEntity<String> response = RestClient.forTarget("http://localhost:9999/info").request()
-				.get(String.class);
-		Assert.assertEquals(HttpStatus.OK, response.getStatus());
-	}
+    @Test
+    public void testActuator() {
+        ResponseEntity<String> response = RestClient.forTarget("http://localhost:9999/info").request()
+                .get(String.class);
+        Assert.assertEquals(HttpStatus.OK, response.getStatus());
+    }
 
 }

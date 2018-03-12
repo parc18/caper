@@ -1,4 +1,5 @@
 package com.khelacademy.www.services;
+
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.utils.Constants;
 
@@ -14,7 +15,7 @@ public class ServiceUtil {
         return apiResponse;
     }
 
-    public static <T> ApiFormatter<T> convertToFailureResponse(T t,String errorMessage,Integer statusCode) {
+    public static <T> ApiFormatter<T> convertToFailureResponse(T t, String errorMessage, Integer statusCode) {
         ApiFormatter<T> apiResponse = new ApiFormatter<T>();
         apiResponse.setCode(statusCode);
         apiResponse.setResult(Constants.FAILURE_RESPONSE_VALUE);

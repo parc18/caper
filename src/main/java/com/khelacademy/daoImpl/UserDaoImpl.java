@@ -3,7 +3,7 @@ package com.khelacademy.daoImpl;
 import com.khelacademy.dao.UserDao;
 import com.khelacademy.www.pojos.User;
 
-public class UserDaoImpl implements UserDao{
+public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserById(Integer userId) {

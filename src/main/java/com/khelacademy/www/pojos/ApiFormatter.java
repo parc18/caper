@@ -10,24 +10,31 @@ public class ApiFormatter<T> {
     public Integer getCode() {
         return code;
     }
+
     public void setCode(Integer code) {
         this.code = code;
     }
+
     public String getResult() {
         return result;
     }
+
     public void setResult(String resultVal) {
         this.result = resultVal;
     }
+
     public T getResponse() {
         return response;
     }
+
     public void setResponse(T response) {
         this.response = response;
     }
+
     public String getError() {
         return error;
     }
+
     public void setError(String error) {
         this.error = error;
     }

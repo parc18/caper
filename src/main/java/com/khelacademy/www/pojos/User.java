@@ -6,6 +6,11 @@ public class User {
     private String lastName;
     private String email;
     private String passcode;
+    private String contactNumber;
+    private String city;
+    private String address;
+    private String status;
+    private String welcomeDate;
 
     public String getEmail() {
         return email;
@@ -54,12 +59,6 @@ public class User {
     public void setWelcomeDate(String welcomeDate) {
         this.welcomeDate = welcomeDate;
     }
-
-    private String contactNumber;
-    private String city;
-    private String address;
-    private String status;
-    private String welcomeDate;
 
     public Integer getUserId() {
         return userId;
