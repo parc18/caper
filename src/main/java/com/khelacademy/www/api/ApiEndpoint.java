@@ -57,24 +57,27 @@ public class ApiEndpoint {
     }
 
 
-    @ApiOperation("Ping request")
+    @ApiOperation("get user request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @GET
     @Path("/user_details")
     @Produces(MediaType.APPLICATION_JSON)
     public Response user_details() throws SQLException {
-        ResultSet rs = SQLArrow.fire("SELECT * FROM user").executeQuery();
-        User user = new User();
-        while (rs.next()) {
-            user.setUserId(rs.getInt("id"));
-            user.setFirstName(rs.getString("firstname"));
-            user.setLastName(rs.getString("lastname"));
-            user.setEmail(rs.getString("email"));
-            user.setCity(rs.getString("city"));
-            user.setStatus(rs.getString("status"));
-            user.setContactNumber(rs.getString("phone"));
+        ApiFormatter <User> userResponse;
+        try (ResultSet rs = SQLArrow.fire("SELECT * FROM user")) {
+            User user = new User();
+            while (rs.next()) {
+                user.setUserId(rs.getInt("id"));
+                user.setFirstName(rs.getString("firstname"));
+                user.setLastName(rs.getString("lastname"));
+                user.setEmail(rs.getString("email"));
+                user.setCity(rs.getString("city"));
+                user.setStatus(rs.getString("status"));
+                user.setContactNumber(rs.getString("phone"));
+            }
+            userResponse = ServiceUtil.convertToSuccessResponse(user);
+            SQLArrow.relax(rs);
         }
-        ApiFormatter<User> userResponse = ServiceUtil.convertToSuccessResponse(user);
         return Response.ok(new GenericEntity<ApiFormatter<User>>(userResponse) {
         }).build();
     }

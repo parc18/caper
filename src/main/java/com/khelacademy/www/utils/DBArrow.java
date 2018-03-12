@@ -17,40 +17,46 @@ public class DBArrow {
 
     private Connection dbConnection = null;
 
-    PreparedStatement preparedStatement = null;
+    private PreparedStatement preparedStatement = null;
+
+    private ResultSet rs = null;
 
     public DBArrow() throws SQLException {
     }
 
     @Contract(pure = true)
     public static DBArrow getArrow() {
-        return dbArrow ;
+        return dbArrow;
     }
 
-    public PreparedStatement fire(String query) throws SQLException {
+    public ResultSet fire(String query) throws SQLException {
         try {
             dbConnection = getConnection();
-            preparedStatement = dbConnection.prepareStatement(query);
+            rs = dbConnection.prepareStatement(query).executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return preparedStatement;
+        return rs;
     }
 
     public ResultSet release() throws SQLException {
         return preparedStatement.executeQuery();
     }
 
-    public void relax() throws SQLException {
+    public void relax(ResultSet rs) throws SQLException {
         dbConnection.close();
-        preparedStatement.close();
+        dbConnection = null;
+        if (preparedStatement != null)
+            preparedStatement.close();
+        rs.close();
     }
+
     private Connection getConnection() throws SQLException {
-        if(dbConnection==null){
+        if (dbConnection == null) {
             return DriverManager.getConnection(
                     "jdbc:mysql://localhost/caper?" +
                             "user=root&password=Wsquare");
-        }else {
+        } else {
             return dbConnection;
         }
 
