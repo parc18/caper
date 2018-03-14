@@ -2,10 +2,13 @@ package com.khelacademy.dao;
 
 import com.khelacademy.www.pojos.User;
 
-public interface UserDao {
-    User getUserById(Integer userId);
+import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 
-    User getUserByEmailId(Integer emailId);
+public interface UserDao {
+    Response getUserById(Integer userId) throws SQLException;
+
+    Response getUserByEmailId(Integer emailId);
 
     boolean registerUser(User userDetails);
 }

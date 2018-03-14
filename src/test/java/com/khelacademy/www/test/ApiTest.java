@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.holonplatform.example.test;
+package com.khelacademy.www.test;
 
 import com.holonplatform.http.HttpHeaders;
 import com.holonplatform.http.HttpStatus;
@@ -40,7 +40,7 @@ public class ApiTest {
                 .get(String.class);
 
         Assert.assertEquals(HttpStatus.OK, response.getStatus());
-        Assert.assertEquals("pong", response.as(String.class).orElse(null));
+        Assert.assertEquals("{\"message\":\"pong\"}", response.as(String.class).orElse(null));
     }
 
     @Test

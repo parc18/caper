@@ -1,7 +1,5 @@
 package com.khelacademy.www.utils;
 
-import org.jetbrains.annotations.Contract;
-
 import java.sql.*;
 
 public class DBArrow {
@@ -24,23 +22,27 @@ public class DBArrow {
     public DBArrow() throws SQLException {
     }
 
-    @Contract(pure = true)
     public static DBArrow getArrow() {
         return dbArrow;
     }
 
-    public ResultSet fire(String query) throws SQLException {
+    public PreparedStatement getPreparedStatement(String s) {
         try {
             dbConnection = getConnection();
-            rs = dbConnection.prepareStatement(query).executeQuery();
+            return dbConnection.prepareStatement(s);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ResultSet fire(PreparedStatement statement) throws SQLException {
+        try {
+            rs = statement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return rs;
-    }
-
-    public ResultSet release() throws SQLException {
-        return preparedStatement.executeQuery();
     }
 
     public void relax(ResultSet rs) throws SQLException {
