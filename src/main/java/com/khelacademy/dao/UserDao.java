@@ -10,5 +10,5 @@ public interface UserDao {
 
     Response getUserByEmailId(Integer emailId);
 
-    boolean registerUser(User userDetails);
+    boolean registerUser(User userDetails) throws SQLException;
 }

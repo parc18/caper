@@ -44,6 +44,14 @@ public class DBArrow {
         }
         return rs;
     }
+    public int fireBowfishing(PreparedStatement statement) throws SQLException {
+        try {
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public void relax(ResultSet rs) throws SQLException {
         dbConnection.close();

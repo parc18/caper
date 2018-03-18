@@ -95,8 +95,13 @@
             <artifactId>annotations</artifactId>
             <version>RELEASE</version>
         </dependency>
+      <!-- https://mvnrepository.com/artifact/com.instamojo/instamojo-java -->
+		<dependency>
+		    <groupId>com.instamojo</groupId>
+		    <artifactId>instamojo-java</artifactId>
+		    <version>1.0.3</version>
+		</dependency>
     </dependencies>
-
     <build>
         <plugins>
             <!-- Spring Boot plugin -->
