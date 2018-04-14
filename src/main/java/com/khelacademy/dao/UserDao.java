@@ -3,6 +3,7 @@ package com.khelacademy.dao;
 import com.khelacademy.www.pojos.User;
 
 import javax.ws.rs.core.Response;
+
 import java.sql.SQLException;
 
 public interface UserDao {
@@ -10,5 +11,7 @@ public interface UserDao {
 
     Response getUserByEmailId(Integer emailId);
 
-    boolean registerUser(User userDetails) throws SQLException;
+    String registerUser(User userDetails) throws SQLException;
+
+	boolean updateStatus(String phone, Integer status);
 }

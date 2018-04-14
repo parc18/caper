@@ -1,14 +1,14 @@
 package com.khelacademy.www.pojos;
 
 public class MyErrors {
-	private String errorMsg = null;
+	private String genericMsg = null;
 	public MyErrors (String s){
-		this.errorMsg = s;
+		this.genericMsg = s;
 	}
 	public String getErrorMsg() {
-		return errorMsg;
+		return genericMsg;
 	}
 	public void setErrorMsg(String errorMsg) {
-		this.errorMsg = errorMsg;
+		this.genericMsg = errorMsg;
 	}
 }

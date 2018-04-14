@@ -8,6 +8,7 @@ import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.UserUtils;
+import com.khelacademy.www.utils.SMSService;
 
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
@@ -72,10 +73,38 @@ public class UserDaoImpl implements UserDao {
     public Response getUserByEmailId(Integer emailId) {
         return null;
     }
-
     @Override
-    public boolean registerUser(User userDetails) {
-        PreparedStatement statement = SQLArrow.getPreparedStatement("INSERT INTO user  (firstname, lastname, email, passcode,phone,city,status,welcomedate ) values (?, ?, ?, ?, ?, ?, ?,NOW())");
+    public boolean updateStatus(String phone, Integer status) {
+    	PreparedStatement statement = SQLArrow.getPreparedStatement("UPDATE user SET status=? where phone=?");
+    	try {
+			statement.setInt(1, status);
+			statement.setString(2, phone);
+			if(SQLArrow.fireBowfishing(statement) == 1){
+				return true;
+			}
+		} catch (SQLException e) {
+			LOGGER.debug("ERROR AFTER VERIFYING STATUS FOR PHONE : " + phone + "WITH ERROR " + e.getMessage());
+			return false;
+		}
+    	
+        return true;
+    }
+    @Override
+    public String registerUser(User userDetails) {
+    	PreparedStatement statement = SQLArrow.getPreparedStatement("SELECT  * from user  WHERE email=? OR phone =?");
+    	try {
+    		statement.setString(1, userDetails.getEmail());
+    		statement.setString(2, userDetails.getContactNumber());
+    		ResultSet rs = SQLArrow.fire(statement);
+    		if(rs.next()) {
+    			return "EXIST";
+    		}
+			
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        statement = SQLArrow.getPreparedStatement("INSERT INTO user  (firstname, lastname, email, passcode,phone,city,status,welcomedate ) values (?, ?, ?, ?, ?, ?, ?,NOW())");
         try {
             statement.setString(1, userDetails.getFirstName());
             statement.setString(2, userDetails.getLastName());
@@ -87,10 +116,14 @@ public class UserDaoImpl implements UserDao {
             statement.setString(5, userDetails.getContactNumber());
             statement.setString(6, userDetails.getCity());
             statement.setInt(7, 1);
-            return SQLArrow.fireBowfishing(statement) == 1;
+            if(SQLArrow.fireBowfishing(statement) == 1){
+            	SMSService msg = new SMSService();
+            	String a= msg.sendSMS(userDetails.getContactNumber());
+            	return a;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return "FAILURE";
     }
 }

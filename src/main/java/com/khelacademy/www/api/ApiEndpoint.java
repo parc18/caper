@@ -27,9 +27,13 @@ import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.daoImpl.HomeDaoImpl;
 import com.khelacademy.daoImpl.UserDaoImpl;
 import com.khelacademy.www.pojos.ApiFormatter;
+import com.khelacademy.www.pojos.MyErrors;
+import com.khelacademy.www.pojos.OTPContent;
 import com.khelacademy.www.pojos.Order;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.utils.SMSService;
+import com.khelacademy.www.utils.SendUnicodeSms;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,9 +47,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
 /**
@@ -64,7 +70,9 @@ public class ApiEndpoint {
     @GET
     @Path("/ping")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response ping() {
+    public Response ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
+    	SendUnicodeSms abc = new SendUnicodeSms();
+    	abc.send();
     	LOGGER.debug("Server is running Fine Check DB credentials");
         return Response.ok("{\"message\":\"pong\"}").build();
     }
@@ -98,7 +106,7 @@ public class ApiEndpoint {
     @GET
     @Path("/events")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response events() throws SQLException {
+    public Response events(@QueryParam("event_id") Integer eventId) throws SQLException {
         EventDao event = new EventDaoImpl();
         return event.getAllEvents();
     }
@@ -110,10 +118,46 @@ public class ApiEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response user_registration(@RequestBody User userDetails) throws SQLException {
         UserDao user = new UserDaoImpl();
-        user.registerUser(userDetails);
-        return Response.ok("{\"message\":\"success\"}").build();
+        String Register = user.registerUser(userDetails);
+        if(Register.equals("EXIST")){
+			MyErrors error = new MyErrors("User Exist Try Loggin In");
+        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+            return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+            }).build();
+        }
+        if(Register.equals("FAILURE")){
+			MyErrors error = new MyErrors("Technical Problem");
+        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+            return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+            }).build();
+        }
+        if(!Register.equals("ERROR"))
+        	userDetails.setSessionValue(Register);
+    	ApiFormatter<User>  usr= ServiceUtil.convertToSuccessResponse(userDetails);
+        return Response.ok(new GenericEntity<ApiFormatter<User>>(usr) {
+        }).build();
     }
-
+    @ApiOperation("verify OTP request")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @POST
+    @Path("/verify_otp")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response verify_otp(@RequestBody OTPContent otpContent) throws SQLException {
+        SMSService smsService = new SMSService();
+        String Register = smsService.verifyOTP(otpContent.getSessionDetails(), otpContent.getOtp(), otpContent.getPhone());
+        if(Register.equals("ERROR")){
+			MyErrors error = new MyErrors("Technical Problem");
+        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+            return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+            }).build();
+        }
+        otpContent.setStatus(Register);
+    	ApiFormatter<OTPContent>  usr= ServiceUtil.convertToSuccessResponse(otpContent);
+        return Response.ok(new GenericEntity<ApiFormatter<OTPContent>>(usr) {
+        }).build();
+    }
+    
     @ApiOperation("instamojo payment user")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @POST

@@ -11,6 +11,7 @@ public class User {
     private String address;
     private String status;
     private String welcomeDate;
+    private String sessionValue;
 
     public String getEmail() {
         return email;
@@ -91,5 +92,13 @@ public class User {
     public void setAddress(String address) {
         this.address = address;
     }
+
+	public String getSessionValue() {
+		return sessionValue;
+	}
+
+	public void setSessionValue(String sessionValue) {
+		this.sessionValue = sessionValue;
+	}
 
 }
