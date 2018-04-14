@@ -33,7 +33,6 @@ import com.khelacademy.www.pojos.Order;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.SMSService;
-import com.khelacademy.www.utils.SendUnicodeSms;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -71,8 +70,6 @@ public class ApiEndpoint {
     @Path("/ping")
     @Produces(MediaType.APPLICATION_JSON)
     public Response ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
-    	SendUnicodeSms abc = new SendUnicodeSms();
-    	abc.send();
     	LOGGER.debug("Server is running Fine Check DB credentials");
         return Response.ok("{\"message\":\"pong\"}").build();
     }
