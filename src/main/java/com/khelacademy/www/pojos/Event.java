@@ -7,12 +7,11 @@ public class Event {
     private Integer eventId;
     private String eventName;
     private Integer eventType;
-    private Integer eventIdValue;
-    private Date date;
-    private Integer status;
+	private Date date;
+	private Integer status;
     private String description;
     private String eventVenue;
-    private String imgUrl;
+    private String eventCity;
     private HashMap<Integer, Integer> prices;
     private String[] sponsers;
     private String[] organizers;
@@ -87,14 +86,6 @@ public class Event {
         this.eventType = eventType;
     }
 
-    public Integer getEventIdValue() {
-        return eventIdValue;
-    }
-
-    public void setEventIdValue(Integer eventIdValue) {
-        this.eventIdValue = eventIdValue;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -118,12 +109,13 @@ public class Event {
     public void setEventVenue(String eventVenue) {
         this.eventVenue = eventVenue;
     }
-
-    public String getImgUrl() {
-        return imgUrl;
-    }
-
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
-    }
+	public String getEventCity() {
+		return eventCity;
+	}
+	public void setEventCity(String eventCity) {
+		this.eventCity = eventCity;
+	}
+    public Date getDate() {
+		return date;
+	}
 }

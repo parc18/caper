@@ -101,11 +101,11 @@ public class ApiEndpoint {
     @ApiOperation("get event request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @GET
-    @Path("/events")
+    @Path("/event")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response events(@QueryParam("event_id") Integer eventId) throws SQLException {
+    public Response events(@QueryParam("city") String city) throws SQLException {
         EventDao event = new EventDaoImpl();
-        return event.getAllEvents();
+        return event.getEventByCity(city);
     }
     @ApiOperation("post user request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})

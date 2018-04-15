@@ -31,7 +31,6 @@ public class HomeDaoImpl implements HomeDao{
                 b.setImageUrl(rs.getString("img_url"));
                 b.setEventUrl(rs.getString("img_url"));
                 e.setEventId(rs.getInt("event_id"));
-                e.setImgUrl(rs.getString("img_url"));
                 e.setEventName(rs.getString("event_name"));
                 e.setPrice(100);
                 e.setCity(rs.getString("venue"));
