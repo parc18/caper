@@ -3,6 +3,8 @@ package com.khelacademy.daoImpl;
 import com.khelacademy.dao.EventDao;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.Event;
+import com.khelacademy.www.pojos.EventPrice;
+import com.khelacademy.www.pojos.EventPriceResponse;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
@@ -59,8 +61,7 @@ public class EventDaoImpl implements EventDao{
     			statement.setString(1, city);	
             }
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY : " + city);
 		}
     	System.out.println(statement.toString());
     	List<Event> allEvents = new ArrayList<Event>();
@@ -93,4 +94,42 @@ public class EventDaoImpl implements EventDao{
         return Response.ok(new GenericEntity<ApiFormatter<List<Event>>>(events) {
         }).build();
     }
+
+	@Override
+	public Response getEventPrice(Integer eventId) {
+    	PreparedStatement statement=null;
+    	EventPriceResponse eventPrices = new EventPriceResponse();
+    	eventPrices.setEventId(eventId);
+    	List<EventPrice> priceDetails = new ArrayList<EventPrice>();
+    	try {
+            if(eventId != null){
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from price where event_id=?");
+            	statement.setInt(1, eventId);
+            }else{
+            	
+            }
+            try (ResultSet rs = SQLArrow.fire(statement)) {
+            	while (rs.next()) {
+            		EventPrice prices = new EventPrice();
+            		prices.setPriceId(rs.getInt("price_id"));
+            		prices.setPriceAmount(rs.getInt("price_amount"));
+            		prices.setCurrency(rs.getString("price_currency"));
+            		prices.setDesc(rs.getString("description"));
+            		priceDetails.add(prices);
+            	}
+            }catch(Exception e){
+            	LOGGER.error("ERROR IN GETTING EVENT'S PRICE DETAILE FOR EVENTID: " + eventId);
+            	MyErrors error = new MyErrors(e.getMessage());
+            	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+                return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+                }).build();
+            }
+		} catch (SQLException e1) {
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR EVENT BASED PRICE FOR THE EVENTID : " + eventId);
+		}
+    	eventPrices.setPriceDetails(priceDetails);
+    	ApiFormatter<EventPriceResponse>  events= ServiceUtil.convertToSuccessResponse(eventPrices);
+        return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {
+        }).build();
+	}
 }

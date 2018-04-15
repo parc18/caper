@@ -107,6 +107,17 @@ public class ApiEndpoint {
         EventDao event = new EventDaoImpl();
         return event.getEventByCity(city);
     }
+    
+    @ApiOperation("get event Prices request")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @GET
+    @Path("/event_prices")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response events(@QueryParam("event_id") Integer eventId) throws SQLException {
+        EventDao event = new EventDaoImpl();
+        return event.getEventPrice(eventId);
+    }
+    
     @ApiOperation("post user request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @POST
