@@ -53,7 +53,6 @@ public class DBArrow {
     private ResultSet rs = null;
 
     public DBArrow() throws SQLException {
-    	System.out.println(dbUser +"testt");
     }
 
     public static DBArrow getArrow() {
@@ -63,6 +62,7 @@ public class DBArrow {
     public PreparedStatement getPreparedStatement(String s) {
         try {
             dbConnection = getConnection();
+            dbConnection.setAutoCommit(false);
             return dbConnection.prepareStatement(s);
         } catch (SQLException e) {
         	LOGGER.error("ERROR WHILE GETTING PREPARED STATEMENT :" + e.getMessage());
@@ -88,6 +88,7 @@ public class DBArrow {
     }
 
     public void relax(ResultSet rs) throws SQLException {
+    	dbConnection.commit();
         dbConnection.close();
         dbConnection = null;
         if (preparedStatement != null)

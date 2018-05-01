@@ -50,25 +50,25 @@ public class EventDaoImpl implements EventDao{
         }).build();
     }
 
-    public Response getEventByCity(String city) {
+    public Response getEventByCityId(Integer cityId) {
 
     	PreparedStatement statement=null;
     	try {
-            if(city.equals("all")){
+            if(cityId == -1){
             	statement = SQLArrow.getPreparedStatement("SELECT  * from event");
             }else{
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city=?");
-    			statement.setString(1, city);	
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=?");
+    			statement.setInt(1, cityId);
             }
 		} catch (SQLException e1) {
-			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY : " + city);
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY ID: " + cityId);
 		}
     	System.out.println(statement.toString());
     	List<Event> allEvents = new ArrayList<Event>();
     	//ApiFormatter<List<Event>> eventResponse = ServiceUtil.convertToSuccessResponse(allUser);
         try (ResultSet rs = SQLArrow.fire(statement)) {
-        	Event event = new Event();
         	while (rs.next()) {
+        	Event event = new Event();
             event.setDate(rs.getDate("eventdate"));
         	System.out.println(rs.getString("description"));
             event.setDescription(rs.getString("description"));
@@ -77,6 +77,7 @@ public class EventDaoImpl implements EventDao{
             event.setEventType(rs.getInt("event_type"));
             event.setCity(rs.getString("event_city"));
             event.setEventName(rs.getString("event_name"));
+            event.setEventImgUrl(rs.getString("img_url"));
             event.setOrganizers(new String[] {"LODHA Group", "DOFF"});
             event.setSponsers(new String[] {"RIL", "TATA Group"});
             event.setPrice(0);
@@ -84,7 +85,7 @@ public class EventDaoImpl implements EventDao{
         	}
         }catch(Exception e){
         	e.printStackTrace();
-        	LOGGER.error("ERROR IN GETTING EVENTS DETAILE FOR CITY: " + city);
+        	LOGGER.error("ERROR IN GETTING EVENTS DETAILE FOR CITY: " + cityId);
         	MyErrors error = new MyErrors(e.getMessage());
         	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
             return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
@@ -132,4 +133,5 @@ public class EventDaoImpl implements EventDao{
         return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {
         }).build();
 	}
+
 }

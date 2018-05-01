@@ -103,9 +103,9 @@ public class ApiEndpoint {
     @GET
     @Path("/event")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response events(@QueryParam("city") String city) throws SQLException {
+    public Response events(@QueryParam("city_id") Integer cityId) throws SQLException {
         EventDao event = new EventDaoImpl();
-        return event.getEventByCity(city);
+        return event.getEventByCityId(cityId);
     }
     
     @ApiOperation("get event Prices request")
@@ -113,7 +113,7 @@ public class ApiEndpoint {
     @GET
     @Path("/event_prices")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response events(@QueryParam("event_id") Integer eventId) throws SQLException {
+    public Response eventsPrices(@QueryParam("event_id") Integer eventId) throws SQLException {
         EventDao event = new EventDaoImpl();
         return event.getEventPrice(eventId);
     }

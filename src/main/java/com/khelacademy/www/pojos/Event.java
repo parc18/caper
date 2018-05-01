@@ -12,6 +12,7 @@ public class Event {
     private String description;
     private String eventVenue;
     private String eventCity;
+    private String eventImgUrl;
     private HashMap<Integer, Integer> prices;
     private String[] sponsers;
     private String[] organizers;
@@ -117,5 +118,11 @@ public class Event {
 	}
     public Date getDate() {
 		return date;
+	}
+	public String getEventImgUrl() {
+		return eventImgUrl;
+	}
+	public void setEventImgUrl(String eventImgUrl) {
+		this.eventImgUrl = eventImgUrl;
 	}
 }
