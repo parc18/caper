@@ -97,7 +97,7 @@ public class DBArrow {
     }
     
     public static Connection getConnection() throws SQLException {
-        if (dbConnection == null) {
+        if (dbConnection.isClosed() || dbConnection == null) {
             return DriverManager.getConnection(
                     "jdbc:mysql://"+dbHost+"/"+dbName+"?user="+dbUser+"&password="+dbPass);
         } else {
