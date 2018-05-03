@@ -21,7 +21,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EventDaoImpl implements EventDao{
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -63,8 +65,7 @@ public class EventDaoImpl implements EventDao{
 		} catch (SQLException e1) {
 			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY ID: " + cityId);
 		}
-    	System.out.println(statement.toString());
-    	List<Event> allEvents = new ArrayList<Event>();
+    	Map<Integer, Event> allEvents = new HashMap<Integer, Event>();
     	//ApiFormatter<List<Event>> eventResponse = ServiceUtil.convertToSuccessResponse(allUser);
         try (ResultSet rs = SQLArrow.fire(statement)) {
         	while (rs.next()) {
@@ -81,7 +82,7 @@ public class EventDaoImpl implements EventDao{
             event.setOrganizers(new String[] {"LODHA Group", "DOFF"});
             event.setSponsers(new String[] {"RIL", "TATA Group"});
             event.setPrice(0);
-            allEvents.add(event);
+            allEvents.put(event.getEventId(),event);
         	}
         }catch(Exception e){
         	e.printStackTrace();
@@ -91,8 +92,8 @@ public class EventDaoImpl implements EventDao{
             return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
             }).build();
         }
-    	ApiFormatter<List<Event>>  events= ServiceUtil.convertToSuccessResponse(allEvents);
-        return Response.ok(new GenericEntity<ApiFormatter<List<Event>>>(events) {
+    	ApiFormatter<Map<Integer,Event>>  events= ServiceUtil.convertToSuccessResponse(allEvents);
+        return Response.ok(new GenericEntity<ApiFormatter<Map<Integer, Event>>>(events) {
         }).build();
     }
 
