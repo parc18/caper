@@ -1,21 +1,5 @@
 package com.khelacademy.daoImpl;
 
-import com.khelacademy.dao.EventDao;
-import com.khelacademy.www.pojos.ApiFormatter;
-import com.khelacademy.www.pojos.Event;
-import com.khelacademy.www.pojos.EventPrice;
-import com.khelacademy.www.pojos.EventPriceResponse;
-import com.khelacademy.www.pojos.MyErrors;
-import com.khelacademy.www.pojos.User;
-import com.khelacademy.www.services.ServiceUtil;
-import com.khelacademy.www.utils.DBArrow;
-
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +8,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.khelacademy.dao.EventDao;
+import com.khelacademy.www.pojos.ApiFormatter;
+import com.khelacademy.www.pojos.Event;
+import com.khelacademy.www.pojos.EventPrice;
+import com.khelacademy.www.pojos.EventPriceResponse;
+import com.khelacademy.www.pojos.MyErrors;
+import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.utils.DBArrow;
 
 public class EventDaoImpl implements EventDao{
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -101,6 +101,7 @@ public class EventDaoImpl implements EventDao{
 	public Response getEventPrice(Integer eventId) {
     	PreparedStatement statement=null;
     	EventPriceResponse eventPrices = new EventPriceResponse();
+    	Map<Integer, List<EventPrice>> groupByCategotyMap = new HashMap<Integer, List<EventPrice>>();
     	eventPrices.setEventId(eventId);
     	List<EventPrice> priceDetails = new ArrayList<EventPrice>();
     	try {
@@ -117,8 +118,10 @@ public class EventDaoImpl implements EventDao{
             		prices.setPriceAmount(rs.getInt("price_amount"));
             		prices.setCurrency(rs.getString("price_currency"));
             		prices.setDesc(rs.getString("description"));
+            		prices.setCategory(rs.getInt("category_id"));       		
             		priceDetails.add(prices);
             	}
+                groupByCategotyMap = priceDetails.stream().collect(Collectors.groupingBy(EventPrice::getCategory));
             }catch(Exception e){
             	LOGGER.error("ERROR IN GETTING EVENT'S PRICE DETAILE FOR EVENTID: " + eventId);
             	MyErrors error = new MyErrors(e.getMessage());
@@ -129,7 +132,7 @@ public class EventDaoImpl implements EventDao{
 		} catch (SQLException e1) {
 			LOGGER.error("ERROR IN PREPARING STATEMENT FOR EVENT BASED PRICE FOR THE EVENTID : " + eventId);
 		}
-    	eventPrices.setPriceDetails(priceDetails);
+    	eventPrices.setPriceDetails(groupByCategotyMap);
     	ApiFormatter<EventPriceResponse>  events= ServiceUtil.convertToSuccessResponse(eventPrices);
         return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {
         }).build();
