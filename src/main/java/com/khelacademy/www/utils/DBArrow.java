@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.mysql.jdbc.Statement;
+
 @Component
 public class DBArrow {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DBArrow.class);
@@ -69,7 +71,16 @@ public class DBArrow {
         }
         return null;
     }
-
+    public PreparedStatement getPreparedStatementForId(String s) {
+        try {
+            dbConnection = getConnection();
+            dbConnection.setAutoCommit(false);
+            return dbConnection.prepareStatement(s, Statement.RETURN_GENERATED_KEYS);
+        } catch (SQLException e) {
+        	LOGGER.error("ERROR WHILE GETTING PREPARED STATEMENT :" + e.getMessage());
+        }
+        return null;
+    }
     public ResultSet fire(PreparedStatement statement) throws SQLException {
         try {
             rs = statement.executeQuery();
@@ -93,7 +104,8 @@ public class DBArrow {
         dbConnection = null;
         if (preparedStatement != null)
             preparedStatement.close();
-        rs.close();
+        if (rs != null)
+        	rs.close();
     }
     
     public static Connection getConnection() throws SQLException {

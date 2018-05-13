@@ -29,5 +29,5 @@ buildNumber.properties
 abc.sql
 mysql.sql
 application.log
-
+application.properties
 

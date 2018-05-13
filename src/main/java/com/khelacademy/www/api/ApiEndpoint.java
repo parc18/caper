@@ -18,20 +18,29 @@ package com.khelacademy.www.api;
 import com.holonplatform.jaxrs.swagger.annotations.ApiDefinition;
 import com.instamojo.wrapper.api.Instamojo;
 import com.instamojo.wrapper.api.InstamojoImpl;
+import com.instamojo.wrapper.exception.ConnectionException;
 import com.instamojo.wrapper.model.PaymentOrder;
 import com.instamojo.wrapper.response.CreatePaymentOrderResponse;
+import com.instamojo.wrapper.response.PaymentOrderDetailsResponse;
+import com.khelacademy.dao.BookEventDao;
 import com.khelacademy.dao.EventDao;
 import com.khelacademy.dao.HomeDao;
 import com.khelacademy.dao.UserDao;
+import com.khelacademy.daoImpl.BookEventDaoImpl;
 import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.daoImpl.HomeDaoImpl;
 import com.khelacademy.daoImpl.UserDaoImpl;
 import com.khelacademy.www.pojos.ApiFormatter;
+import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.OTPContent;
 import com.khelacademy.www.pojos.Order;
+import com.khelacademy.www.pojos.PriceDetails;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.services.UserStatus;
+import com.khelacademy.www.utils.InstamojoPaymentHelper;
+import com.khelacademy.www.utils.PaymentRequestValidator;
 import com.khelacademy.www.utils.SMSService;
 
 import io.swagger.annotations.Api;
@@ -145,6 +154,42 @@ public class ApiEndpoint {
         return Response.ok(new GenericEntity<ApiFormatter<User>>(usr) {
         }).build();
     }
+    @ApiOperation("Start Booking")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @POST
+    @Path("/book_event")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response book_event(@RequestBody BookingRequestObject bookingRequestObject) throws SQLException {
+    	
+    	PaymentRequestValidator paymentRequestValidator = new PaymentRequestValidator();
+    	if(paymentRequestValidator.validate(bookingRequestObject)) {
+    		BookEventDao book = new BookEventDaoImpl();
+    		if(bookingRequestObject.getPriceDetail().size() == 1 && bookingRequestObject.getPriceDetail().get(0).getQuantity() == 1) {
+    			try {
+					return book.bookSingleTicket(bookingRequestObject,true);
+				} catch (UnsupportedEncodingException e) {
+	
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}else{
+				try {
+					return book.bookSingleTicket(bookingRequestObject, false);
+				} catch (UnsupportedEncodingException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+    		}
+    		
+    	}
+
+		MyErrors error = new MyErrors("Technical Problem");
+    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+        }).build();
+    }
+    
     @ApiOperation("verify OTP request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @POST
@@ -165,6 +210,7 @@ public class ApiEndpoint {
         return Response.ok(new GenericEntity<ApiFormatter<OTPContent>>(usr) {
         }).build();
     }
+    
     
     @ApiOperation("instamojo payment user")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
@@ -243,6 +289,32 @@ public class ApiEndpoint {
                 System.out.println("Provide a valid webhook url");
             }
         }
+        return Response.ok("{\"message\":\"success\"}").build();
+    }
+    @ApiOperation("instamojo payment user")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @GET
+    @Path("/payment_status")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response paymentStatus(@QueryParam("paymentId") String paymentId) throws SQLException {
+    	Instamojo api = null;
+        try {
+            // gets the reference to the instamojo api
+            api = InstamojoImpl.getApi("test_Ubu7aJMhA9t6fvhnDuhe4ak9oHQP3RCPxtJ", "test_aCqcPrXNeZ0RJBDjx9i8zhU0csN61WNkAmWbP1aOPJMd2UcLm4Z87HkxMjsSGp9CfDDoyVb8fujQpA1ebeAnduTrCDxIXVYQTm2Zr95VJULbbrYzwHcVRa4RBLR", "https://test.instamojo.com/v2/", "https://test.instamojo.com/oauth2/token/");
+        } catch (Exception e) {
+
+        }
+        PaymentOrderDetailsResponse paymentOrderDetailsResponse = null;
+		try {
+			paymentOrderDetailsResponse = api.getPaymentOrderDetails(paymentId);
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        // print the status of the payment order.
+        System.out.println(paymentOrderDetailsResponse.toString());
         return Response.ok("{\"message\":\"success\"}").build();
     }
 }

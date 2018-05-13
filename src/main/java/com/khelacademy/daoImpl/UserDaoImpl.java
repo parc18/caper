@@ -5,7 +5,9 @@ import com.khelacademy.www.api.ApiEndpoint;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.User;
+import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.services.UserStatus;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.UserUtils;
 import com.khelacademy.www.utils.SMSService;
@@ -97,7 +99,7 @@ public class UserDaoImpl implements UserDao {
     		statement.setString(2, userDetails.getContactNumber());
     		ResultSet rs = SQLArrow.fire(statement);
     		if(rs.next()) {
-    			return "EXIST";
+    			return PresenceStatus.EXISTS.toString();
     		}
 			
 		} catch (SQLException e1) {
@@ -115,15 +117,17 @@ public class UserDaoImpl implements UserDao {
                 statement.setString(4, userDetails.getPasscode());
             statement.setString(5, userDetails.getContactNumber());
             statement.setString(6, userDetails.getCity());
-            statement.setInt(7, 1);
+            statement.setString(7, userDetails.getStatus());
             if(SQLArrow.fireBowfishing(statement) == 1){
-            	SMSService msg = new SMSService();
-            	String a= msg.sendSMS(userDetails.getContactNumber());
-            	return a;
+//            	SMSService msg = new SMSService();
+//            	String a= msg.sendSMS(userDetails.getContactNumber());
+//            	return a;
+            	SQLArrow.relax(null);
+            	return PresenceStatus.REGISTRED_SUCCESSFULLY.toString();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "FAILURE";
+        return PresenceStatus.COUDNT_REGISTER.toString();
     }
 }

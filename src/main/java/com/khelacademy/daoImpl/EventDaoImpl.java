@@ -71,7 +71,6 @@ public class EventDaoImpl implements EventDao{
         	while (rs.next()) {
         	Event event = new Event();
             event.setDate(rs.getDate("eventdate"));
-        	System.out.println(rs.getString("description"));
             event.setDescription(rs.getString("description"));
             event.setEventId(rs.getInt("event_id"));
             event.setEventVenue(rs.getString("venue"));
