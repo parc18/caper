@@ -3,7 +3,9 @@ package com.khelacademy.daoImpl;
 import com.khelacademy.dao.UserDao;
 import com.khelacademy.www.api.ApiEndpoint;
 import com.khelacademy.www.pojos.ApiFormatter;
+import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.MyErrors;
+import com.khelacademy.www.pojos.PriceDetails;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
@@ -130,4 +132,36 @@ public class UserDaoImpl implements UserDao {
         }
         return PresenceStatus.COUDNT_REGISTER.toString();
     }
+
+	@Override
+	public String recordTempUsers(BookingRequestObject bookingRequestObject) throws SQLException{
+    	StringBuffer SQLString = new StringBuffer("INSERT INTO temp_users  (NAME, USER_ID, PRICE_ID) values ");
+    	
+    	StringBuffer vals = new StringBuffer("");
+    	boolean flag = true;
+    	for (PriceDetails p : bookingRequestObject.getPriceDetail()) {
+    		for(int y=1 ; y<= p.getQuantity(); y++){
+	    		if(flag) {
+	    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() +")");
+	    		}else{
+	    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +")");
+	    		}
+	    		flag = false;
+    		}
+    	}
+    	SQLString.append(vals);
+    	
+    	
+    	PreparedStatement statement = SQLArrow.getPreparedStatement(SQLString.toString());
+    	System.out.println(SQLString.toString()	);
+    	try {
+			if(SQLArrow.fireBowfishing(statement) >= 1) {
+				return PresenceStatus.ALL_TEMP_USER_SUCCESS.toString();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return PresenceStatus.UNKNOWN_ERROR.toString();
+	}
 }

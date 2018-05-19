@@ -15,6 +15,30 @@
  */
 package com.khelacademy.www.api;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import com.holonplatform.jaxrs.swagger.annotations.ApiDefinition;
 import com.instamojo.wrapper.api.Instamojo;
 import com.instamojo.wrapper.api.InstamojoImpl;
@@ -35,32 +59,10 @@ import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.OTPContent;
 import com.khelacademy.www.pojos.Order;
-import com.khelacademy.www.pojos.PriceDetails;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
-import com.khelacademy.www.services.UserStatus;
-import com.khelacademy.www.utils.InstamojoPaymentHelper;
 import com.khelacademy.www.utils.PaymentRequestValidator;
 import com.khelacademy.www.utils.SMSService;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
 
 /**
  * JAX-RS API endpoint.
@@ -315,6 +317,17 @@ public class ApiEndpoint {
 
         // print the status of the payment order.
         System.out.println(paymentOrderDetailsResponse.toString());
+        return Response.ok("{\"message\":\"success\"}").build();
+    }
+    @ApiOperation("instamojo webhook")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @POST
+    @Path("/instamojo_webhook")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response instamojoWebhook(@FormParam("status") String status, @FormParam("payment_id") String paymentId, @FormParam("payment_request_id") String paymentRequestId) throws SQLException {
+    	System.out.println(paymentRequestId.toString()+ "Myid1");
+    	System.out.println(paymentRequestId.toString() + "Myid2");
         return Response.ok("{\"message\":\"success\"}").build();
     }
 }

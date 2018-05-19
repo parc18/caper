@@ -19,6 +19,7 @@ import com.khelacademy.dao.BookEventDao;
 import com.khelacademy.dao.UserDao;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
+import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.PriceDetails;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.BookingStatus;
@@ -51,23 +52,23 @@ public class BookEventDaoImpl implements BookEventDao {
 		try {
 			
 			if(userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.REGISTRED_SUCCESSFULLY.toString()) || userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.EXISTS.toString())){
-		        String TXN_ID = Long.toString(System.nanoTime());
-		        byte[] bytesOfMessage = TXN_ID.getBytes("UTF-8");
-
-		        MessageDigest md = null;
-				try {
-					md = MessageDigest.getInstance("MD5");
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		        byte[] thedigest = md.digest(bytesOfMessage);
-		        TXN_ID = thedigest.toString();
+//		        String TXN_ID = Long.toString(System.nanoTime());
+//		        byte[] bytesOfMessage = TXN_ID.getBytes("UTF-8");
+//
+//		        MessageDigest md = null;
+//				try {
+//					md = MessageDigest.getInstance("MD5");
+//				} catch (NoSuchAlgorithmException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//		        byte[] thedigest = md.digest(bytesOfMessage);
+//		        TXN_ID = thedigest.toString();
 		        
-		        PreparedStatement statement = SQLArrow.getPreparedStatementForId("INSERT INTO booking  (booking_date, no_of_tickets, txn_id, status ) values (NOW(), ?, ?, ?)	");
+		        PreparedStatement statement = SQLArrow.getPreparedStatementForId("INSERT INTO booking  (booking_date, no_of_tickets, status ) values (NOW(), ?, ?)	");
 		        statement.setInt(1,(NoOfTickerCalculator.totalTicket(bookingRequestObject)));
-		        statement.setString(2, TXN_ID);
-		        statement.setString(3, BookingStatus.INITIATED.toString());
+		       // statement.setString(2, TXN_ID);
+		        statement.setString(2, BookingStatus.INITIATED.toString());
 		        int bookingTableUpdate = SQLArrow.fireBowfishing(statement);
 		        int bookingId = 0;
                 ResultSet rs = statement.getGeneratedKeys();
@@ -103,9 +104,13 @@ public class BookEventDaoImpl implements BookEventDao {
 	                        while (rs1.next()) {
 	                        	userId = rs1.getInt("id");
 	                        }
+	                        bookingRequestObject.setUserId(userId);
 	                    }catch(Exception e) {
 	                    	e.printStackTrace();
 	                    }
+	    				if(!userDao.recordTempUsers(bookingRequestObject).equals(PresenceStatus.ALL_TEMP_USER_SUCCESS.toString())){
+	    					LOGGER.error("TEMP USERS GOT FUCKED FOR SOME REASON");
+	    				}
 	            		statement = SQLArrow.getPreparedStatementForId("INSERT INTO ticket  (event_id, booking_id, user_id ) values ( ?, ?, ?)");
 	            		statement.setInt(1, bookingRequestObject.getEventId());
 	            		statement.setInt(2, bookingId);
@@ -126,9 +131,24 @@ public class BookEventDaoImpl implements BookEventDao {
 	        		    	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
 	        		    	instamojoPaymentHelper.setOrder(order);
 	        		    	response = instamojoPaymentHelper.initiatePayment(order);
+	        		    	statement = SQLArrow.getPreparedStatement("UPDATE booking SET txn_id=? where booking_id=?");
+	        		    	try {
+	        					statement.setString(1, response.getPaymentOrder().getId());
+	        					statement.setInt(2, bookingId);
+	        					if(SQLArrow.fireBowfishing(statement) >= 1){
+	        						LOGGER.info("ADDED ORDERID FOR BOOKING ID " + bookingId);
+	        					}
+	        				} catch (SQLException e) {
+	        					LOGGER.debug("ERROR IN UPDATING ORDERID FOR BOOKING ID :" + bookingId + "WITH ERROR " + e.getMessage());
+	        				}
+	     
 	            			
 	            		}else{
-	            			
+	            			SQLArrow.rollBack(null);
+	            			MyErrors err = new MyErrors("Could not Book Ticket for user :" + userId);
+	            	    	ApiFormatter<MyErrors>  res= ServiceUtil.convertToFailureResponse(err, "true", 500);
+	            	        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(res) {
+	            	        }).build();
 	            		}
 	            		
 	            	}
@@ -138,12 +158,16 @@ public class BookEventDaoImpl implements BookEventDao {
 		        
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			LOGGER.error("Could not book ticket for user with phone " + bookingRequestObject.getPhone() + " and email "+ bookingRequestObject.getEmail());
 			e.printStackTrace();
 		}
 		
-    	ApiFormatter<CreatePaymentOrderResponse>  res= ServiceUtil.convertToSuccessResponse(response);
-        return Response.ok(new GenericEntity<ApiFormatter<CreatePaymentOrderResponse>>(res) {
+//    	ApiFormatter<CreatePaymentOrderResponse>  res= ServiceUtil.convertToSuccessResponse(response);
+//        return Response.ok(new GenericEntity<ApiFormatter<CreatePaymentOrderResponse>>(res) {
+//        }).build();
+		MyErrors err = new MyErrors(response.getPaymentOptions().getPaymentUrl().toString());
+    	ApiFormatter<MyErrors>  paymentUrl= ServiceUtil.convertToSuccessResponse(err);
+        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(paymentUrl) {
         }).build();
 	}
 

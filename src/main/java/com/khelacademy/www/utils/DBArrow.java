@@ -107,6 +107,15 @@ public class DBArrow {
         if (rs != null)
         	rs.close();
     }
+    public void rollBack(ResultSet rs) throws SQLException {
+    	dbConnection.rollback();;
+        dbConnection.close();
+        dbConnection = null;
+        if (preparedStatement != null)
+            preparedStatement.close();
+        if (rs != null)
+        	rs.close();
+    }
     
     public static Connection getConnection() throws SQLException {
         if (dbConnection == null || dbConnection.isClosed()) {

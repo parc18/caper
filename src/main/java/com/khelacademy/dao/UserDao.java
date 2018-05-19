@@ -1,5 +1,6 @@
 package com.khelacademy.dao;
 
+import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.User;
 
 import javax.ws.rs.core.Response;
@@ -12,6 +13,8 @@ public interface UserDao {
     Response getUserByEmailId(Integer emailId);
 
     String registerUser(User userDetails) throws SQLException;
-
+    
+    String recordTempUsers(BookingRequestObject requestObject) throws SQLException;
+    
 	boolean updateStatus(String phone, Integer status);
 }
