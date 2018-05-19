@@ -325,9 +325,15 @@ public class ApiEndpoint {
     @Path("/instamojo_webhook")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response instamojoWebhook(@FormParam("status") String status, @FormParam("payment_id") String paymentId, @FormParam("payment_request_id") String paymentRequestId) throws SQLException {
-    	System.out.println(paymentRequestId.toString()+ "Myid1");
-    	System.out.println(paymentRequestId.toString() + "Myid2");
+    public Response instamojoWebhook(@FormParam("status") String status, @FormParam("payment_id") String paymentId, @FormParam("payment_request_id") String paymentRequestId) {
+    	try{
+        	System.out.println(paymentId.toString()+ "Myid1");
+        	System.out.println(status.toString() + "Myid2");
+        	System.out.println(paymentRequestId.toString() + "Myid2");
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    	}
+
         return Response.ok("{\"message\":\"success\"}").build();
     }
 }
