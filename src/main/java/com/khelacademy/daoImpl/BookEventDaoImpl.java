@@ -198,4 +198,21 @@ public class BookEventDaoImpl implements BookEventDao {
 	
 	}
 
+	@Override
+	public boolean UpdateStatusFromWbhook(String id, String status) {
+    	PreparedStatement statement = SQLArrow.getPreparedStatement("UPDATE booking SET status=? where txn_id=?");
+    	try {
+			statement.setString(1, status);
+			statement.setString(2, id);
+			if(SQLArrow.fireBowfishing(statement) >= 1){
+				return true;
+			}
+		} catch (SQLException e) {
+			LOGGER.debug("ERROR UPDATING STATUS FOR TXN_ID : " + id + "WITH ERROR " + e.getMessage());
+			return false;
+		}
+    	
+        return true;
+	}
+
 }
