@@ -117,7 +117,8 @@ public class EventDaoImpl implements EventDao{
             		prices.setPriceAmount(rs.getInt("price_amount"));
             		prices.setCurrency(rs.getString("price_currency"));
             		prices.setDesc(rs.getString("description"));
-            		prices.setCategory(rs.getInt("category_id"));       		
+            		prices.setCategory(rs.getInt("category_id"));   
+            		prices.setName(rs.getString("price_name"));
             		priceDetails.add(prices);
             	}
                 groupByCategotyMap = priceDetails.stream().collect(Collectors.groupingBy(EventPrice::getCategory));

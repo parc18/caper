@@ -6,6 +6,7 @@ public class EventPrice {
 	private String desc;
 	private String currency;
 	private Integer category;
+	private String name;
 	
 	public Integer getPriceId() {
 		return priceId;
@@ -37,6 +38,12 @@ public class EventPrice {
 	}
 	public void setCategory(Integer category) {
 		this.category = category;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
