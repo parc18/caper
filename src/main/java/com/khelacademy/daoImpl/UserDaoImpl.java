@@ -140,13 +140,15 @@ public class UserDaoImpl implements UserDao {
     	StringBuffer vals = new StringBuffer("");
     	boolean flag = true;
     	for (PriceDetails p : bookingRequestObject.getPriceDetail()) {
-    		for(int y=1 ; y<= p.getQuantity(); y++){
-	    		if(flag) {
-	    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() +")");
-	    		}else{
-	    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +")");
+    		if(p.getQuantity().intValue() > 0){
+	    		for(int y=1 ; y<= p.getQuantity(); y++){
+		    		if(flag) {
+		    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() +")");
+		    		}else{
+		    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +")");
+		    		}
+		    		flag = false;
 	    		}
-	    		flag = false;
     		}
     	}
     	SQLString.append(vals);
