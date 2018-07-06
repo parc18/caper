@@ -16,6 +16,7 @@ public class Event {
     private HashMap<Integer, Integer> prices;
     private String[] sponsers;
     private String[] organizers;
+    private String timings;
 
     public HashMap <Integer, Integer> getPrices() {
         return prices;
@@ -124,5 +125,11 @@ public class Event {
 	}
 	public void setEventImgUrl(String eventImgUrl) {
 		this.eventImgUrl = eventImgUrl;
+	}
+	public String getTimings() {
+		return timings;
+	}
+	public void setTimings(String timings) {
+		this.timings = timings;
 	}
 }

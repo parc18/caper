@@ -62,8 +62,8 @@ public class EventDaoImpl implements EventDao{
             	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=?");
     			statement.setInt(1, cityId);
             }
-		} catch (SQLException e1) {
-			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY ID: " + cityId);
+		} catch (Exception e) {
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY ID: " + cityId, e);
 		}
     	Map<Integer, Event> allEvents = new HashMap<Integer, Event>();
     	//ApiFormatter<List<Event>> eventResponse = ServiceUtil.convertToSuccessResponse(allUser);
@@ -80,7 +80,8 @@ public class EventDaoImpl implements EventDao{
             event.setEventImgUrl(rs.getString("img_url"));
             event.setOrganizers(new String[] {"LODHA Group", "DOFF"});
             event.setSponsers(new String[] {"RIL", "TATA Group"});
-            event.setPrice(0);
+            event.setPrice(rs.getInt("start_price"));
+            event.setTimings(rs.getString("timings"));
             allEvents.put(event.getEventId(),event);
         	}
         }catch(Exception e){
