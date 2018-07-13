@@ -319,7 +319,10 @@ public class ApiEndpoint {
         // print the status of the payment order.
 		
         System.out.println(paymentOrderDetailsResponse.getStatus().toString());
-        return Response.ok("{\"message\":"+paymentOrderDetailsResponse.getStatus().toString()+"}").build();
+		MyErrors error = new MyErrors(paymentOrderDetailsResponse.getStatus().toString());
+    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "False", 200);
+        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+        }).build();
     }
     @ApiOperation("instamojo webhook")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
