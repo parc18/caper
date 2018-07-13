@@ -320,7 +320,7 @@ public class ApiEndpoint {
 		
         System.out.println(paymentOrderDetailsResponse.getStatus().toString());
 		MyErrors error = new MyErrors(paymentOrderDetailsResponse.getStatus().toString());
-    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "False", 200);
+    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToSuccessResponse(error);
         return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
         }).build();
     }
