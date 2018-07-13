@@ -310,6 +310,7 @@ public class ApiEndpoint {
         PaymentOrderDetailsResponse paymentOrderDetailsResponse = null;
 		try {
 			paymentOrderDetailsResponse = api.getPaymentOrderDetails(paymentId);
+
 		} catch (ConnectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -317,7 +318,7 @@ public class ApiEndpoint {
 
         // print the status of the payment order.
 		
-        System.out.println(paymentOrderDetailsResponse.toString());
+        System.out.println(paymentOrderDetailsResponse.getStatus().toString());
         return Response.ok("{\"message\":"+paymentOrderDetailsResponse.getStatus().toString()+"}").build();
     }
     @ApiOperation("instamojo webhook")
