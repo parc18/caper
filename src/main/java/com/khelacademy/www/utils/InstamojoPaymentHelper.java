@@ -12,6 +12,7 @@ import com.instamojo.wrapper.exception.ConnectionException;
 import com.instamojo.wrapper.exception.InvalidPaymentOrderException;
 import com.instamojo.wrapper.model.PaymentOrder;
 import com.instamojo.wrapper.response.CreatePaymentOrderResponse;
+import com.instamojo.wrapper.response.PaymentOrderDetailsResponse;
 import com.khelacademy.www.api.ApiEndpoint;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.Order;
@@ -105,5 +106,22 @@ public class InstamojoPaymentHelper {
 	        }
 	    }
 	    return createPaymentOrderResponse;
+	}
+	//NOT IN USE
+	public String checkStatus(String paymentId) {
+		try {
+			api = InstamojoImpl
+					.getApi("test_BsOJjSEQEIYmIQt7Q3XQ8Qa0RufwXQPWQw4",
+							"test_WxslGlvo1AfACLE4ykxFpX6awVK3yhjU9ohBmFrwpY3E0wX8lyzlLqCqLd7B5U9CeEOpFGjIqQjM65EJ0JKxenWqo0ais4bDobviNv5JiPz7SnPgOjotdhqYPOt",
+							"https://test.instamojo.com/v2/",
+							"https://test.instamojo.com/oauth2/token/");
+
+			PaymentOrderDetailsResponse paymentOrderDetailsResponse = api
+					.getPaymentOrderDetailsByTransactionId("[TRANSACTION_ID]");
+			return paymentOrderDetailsResponse.getStatus().toString();
+		} catch (ConnectionException e) {
+			LOGGER.error(e.toString(), e);
+		}
+		return "ERROR";
 	}
 }

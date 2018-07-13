@@ -316,8 +316,9 @@ public class ApiEndpoint {
 		}
 
         // print the status of the payment order.
+		
         System.out.println(paymentOrderDetailsResponse.toString());
-        return Response.ok("{\"message\":\"success\"}").build();
+        return Response.ok("{\"message\":"+paymentOrderDetailsResponse.getStatus().toString()+"}").build();
     }
     @ApiOperation("instamojo webhook")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})

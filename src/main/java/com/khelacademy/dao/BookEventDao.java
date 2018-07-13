@@ -10,4 +10,6 @@ public interface BookEventDao {
 	Response bookSingleTicket(BookingRequestObject bookingRequestObject, boolean b) throws UnsupportedEncodingException;
 	Response bookMultipleTicket(BookingRequestObject bookingRequestObject);
 	boolean UpdateStatusFromWbhook(String id, String status);
+	// NOT IN USE
+	String checkBookingStatus(String paymentId);
 }

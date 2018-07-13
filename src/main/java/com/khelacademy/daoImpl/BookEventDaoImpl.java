@@ -221,5 +221,11 @@ public class BookEventDaoImpl implements BookEventDao {
 		}
         return false;
 	}
+	//NOT IN USE make use in future
+	@Override
+	public String checkBookingStatus(String paymentId) {
+    	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
+    	return instamojoPaymentHelper.checkStatus(paymentId);
+	}
 
 }
