@@ -163,11 +163,10 @@ public class ApiEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response book_event(@RequestBody BookingRequestObject bookingRequestObject) throws SQLException {
-    	
     	PaymentRequestValidator paymentRequestValidator = new PaymentRequestValidator();
     	if(paymentRequestValidator.validate(bookingRequestObject)) {
     		BookEventDao book = new BookEventDaoImpl();
-    		if(bookingRequestObject.getPriceDetail().size() == 1 && bookingRequestObject.getPriceDetail().get(0).getQuantity() == 1) {
+    		if(bookingRequestObject.getPriceDetail().size() == 1 && bookingRequestObject.getPriceDetail().get(0).getQuantity() == 1 && bookingRequestObject.getPriceDetail().get(0).getPlayerNames().size() ==1) {
     			try {
 					return book.bookSingleTicket(bookingRequestObject,true);
 				} catch (UnsupportedEncodingException e) {
@@ -333,7 +332,24 @@ public class ApiEndpoint {
     public void instamojoWebhook(@FormParam("status") String status, @FormParam("payment_id") String paymentId, @FormParam("id") String id, @FormParam("transaction_id") String transactionId, @FormParam("mac") String mac, @FormParam("amount") String amount) {
     	try{
     		BookEventDao book = new BookEventDaoImpl();
-    		if(book.UpdateStatusFromWbhook(id,status)){
+    		//
+        	Instamojo api = null;
+            try {
+                // gets the reference to the instamojo api
+                api = InstamojoImpl.getApi("test_Ubu7aJMhA9t6fvhnDuhe4ak9oHQP3RCPxtJ", "test_aCqcPrXNeZ0RJBDjx9i8zhU0csN61WNkAmWbP1aOPJMd2UcLm4Z87HkxMjsSGp9CfDDoyVb8fujQpA1ebeAnduTrCDxIXVYQTm2Zr95VJULbbrYzwHcVRa4RBLR", "https://test.instamojo.com/v2/", "https://test.instamojo.com/oauth2/token/");
+            } catch (Exception e) {
+
+            }
+            PaymentOrderDetailsResponse paymentOrderDetailsResponse = null;
+    		try {
+    			paymentOrderDetailsResponse = api.getPaymentOrderDetails(id);
+
+    		} catch (ConnectionException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		
+    		if(book.UpdateStatusFromWbhook(id,paymentOrderDetailsResponse.getStatus().toString())){
     			LOGGER.info("SUCCESSFULLY UPDATED STATUS FOR ID " + id);
     		}
     	}catch(Exception e) {

@@ -47,4 +47,11 @@ public class BookingRequestObject {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+	@Override
+	public String toString() {
+		return "BookingRequestObject [userId=" + userId + ", eventId="
+				+ eventId + ", email=" + email + ", phone=" + phone
+				+ ", totalAmount=" + totalAmount + ", priceDetail="
+				+ priceDetail.toString() + "]";
+	}
 }

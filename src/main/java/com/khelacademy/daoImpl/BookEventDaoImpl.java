@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import net.bytebuddy.implementation.bytecode.Throw;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,9 +109,12 @@ public class BookEventDaoImpl implements BookEventDao {
 	                        bookingRequestObject.setUserId(userId);
 	                    }catch(Exception e) {
 	                    	e.printStackTrace();
+	                    	throw e;
 	                    }
 	    				if(!userDao.recordTempUsers(bookingRequestObject).equals(PresenceStatus.ALL_TEMP_USER_SUCCESS.toString())){
 	    					LOGGER.error("TEMP USERS GOT FUCKED FOR SOME REASON");
+	    					SQLArrow.rollBack(null);
+	    					throw new Error("TEMP USERS GOT FUCKED FOR SOME REASON");
 	    				}
 	            		statement = SQLArrow.getPreparedStatementForId("INSERT INTO ticket  (event_id, booking_id, user_id ) values ( ?, ?, ?)");
 	            		statement.setInt(1, bookingRequestObject.getEventId());
@@ -130,7 +135,12 @@ public class BookEventDaoImpl implements BookEventDao {
 	        		        order.setTransactionId(Integer.toString(bookingId));
 	        		    	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
 	        		    	instamojoPaymentHelper.setOrder(order);
-	        		    	response = instamojoPaymentHelper.initiatePayment(order);
+	        		    	try{
+	        		    		response = instamojoPaymentHelper.initiatePayment(order);	
+	        		    	}catch(Exception e) {
+	        		    		LOGGER.error("COULD NOT INITIATE PAYMENT FOR ORDER"+ order.getTransactionId(), e);
+	        		    		SQLArrow.rollBack(null);
+	        		    	}
 	        		    	statement = SQLArrow.getPreparedStatement("UPDATE booking SET txn_id=? where booking_id=?");
 	        		    	try {
 	        					statement.setString(1, response.getPaymentOrder().getId());
@@ -140,6 +150,7 @@ public class BookEventDaoImpl implements BookEventDao {
 	        					}
 	        				} catch (SQLException e) {
 	        					LOGGER.debug("ERROR IN UPDATING ORDERID FOR BOOKING ID :" + bookingId + "WITH ERROR " + e.getMessage());
+	        					SQLArrow.rollBack(null);
 	        				}
 	     
 	            			
@@ -227,5 +238,41 @@ public class BookEventDaoImpl implements BookEventDao {
     	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
     	return instamojoPaymentHelper.checkStatus(paymentId);
 	}
+	@Override
+	public Integer getLastUserGameId() {
+		PreparedStatement statement=null;
+		Integer gameId=null;
+		try{
+			statement = SQLArrow.getPreparedStatement("SELECT  game_user_id from temp_users order by game_user_id DESC LIMIT 1");
+			ResultSet rs = SQLArrow.fire(statement);
+            if(rs.next())
+            {
+            	gameId = rs.getInt(1);
+            }
+		}catch(Exception e) {
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR LAST GAME ID : ", e);
+		}
+		if(gameId == null) {
+			return 1;
+		}
+		return gameId;
+	}
 
+	@Override
+	public Integer getCategoryId(Integer priceId) {
+		PreparedStatement statement=null;
+		Integer catId=null;
+		try{
+			statement = SQLArrow.getPreparedStatement("SELECT  category_id from price where price_id=?");
+			statement.setInt(1, priceId);
+			ResultSet rs = SQLArrow.fire(statement);
+            if(rs.next())
+            {
+            	catId = rs.getInt(1);
+            }
+		}catch(Exception e) {
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CATEGORY ID : ", e);
+		}
+		return catId.intValue();
+	}
 }

@@ -99,8 +99,10 @@ public class DBArrow {
     }
 
     public void relax(ResultSet rs) throws SQLException {
-    	dbConnection.commit();
-        dbConnection.close();
+    	if(dbConnection != null) {
+        	dbConnection.commit();
+            dbConnection.close();	
+    	}
         dbConnection = null;
         if (preparedStatement != null)
             preparedStatement.close();
@@ -108,8 +110,10 @@ public class DBArrow {
         	rs.close();
     }
     public void rollBack(ResultSet rs) throws SQLException {
-    	dbConnection.rollback();;
-        dbConnection.close();
+    	if(dbConnection != null) {
+        	dbConnection.rollback();;
+            dbConnection.close();	
+    	}
         dbConnection = null;
         if (preparedStatement != null)
             preparedStatement.close();

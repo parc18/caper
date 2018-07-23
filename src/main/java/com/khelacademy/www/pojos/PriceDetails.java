@@ -25,4 +25,10 @@ public class PriceDetails {
 	public void setPlayerNames(Map<Integer, String> playerNames) {
 		this.playerNames = playerNames;
 	}
+	@Override
+	public String toString() {
+		return "PriceDetails [priceId=" + priceId + ", quantity=" + quantity
+				+ ", playerNames=" + playerNames + "]";
+	}
+	
 }

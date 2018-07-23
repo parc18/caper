@@ -11,6 +11,7 @@ import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.services.UserStatus;
 import com.khelacademy.www.utils.DBArrow;
+import com.khelacademy.www.utils.GameCategory;
 import com.khelacademy.www.utils.UserUtils;
 import com.khelacademy.www.utils.SMSService;
 
@@ -135,20 +136,38 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public String recordTempUsers(BookingRequestObject bookingRequestObject) throws SQLException{
-    	StringBuffer SQLString = new StringBuffer("INSERT INTO temp_users  (NAME, USER_ID, PRICE_ID) values ");
+    	StringBuffer SQLString = new StringBuffer("INSERT INTO temp_users  (NAME, USER_ID, PRICE_ID, game_user_id) values ");
+    	BookEventDaoImpl bookEventDaoImpl = new BookEventDaoImpl();
+    	int gameId = bookEventDaoImpl.getLastUserGameId();
+    	gameId++;
     	
     	StringBuffer vals = new StringBuffer("");
     	boolean flag = true;
     	for (PriceDetails p : bookingRequestObject.getPriceDetail()) {
     		if(p.getQuantity().intValue() > 0){
-	    		for(int y=1 ; y<= p.getQuantity(); y++){
-		    		if(flag) {
-		    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() +")");
-		    		}else{
-		    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +")");
-		    		}
-		    		flag = false;
-	    		}
+    			if(bookEventDaoImpl.getCategoryId(p.getPriceId()).intValue() < GameCategory.BOYS_DOUBLES || bookEventDaoImpl.getCategoryId(p.getPriceId()).intValue() == GameCategory.TEAM_EVENTS) {
+    	    		for(int y=1 ; y<= p.getQuantity(); y++){
+    		    		if(flag) {
+    		    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
+    		    		}else{
+    		    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +  ","+ gameId +")");
+    		    		}
+    		    		flag = false;
+    		    		gameId++;
+    	    		}
+    			}else {
+    	    		for(int y=1 ; y<= p.getQuantity(); y*=2){
+    		    		if(flag) {
+    		    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
+    		    			vals.append(",(\""+ p.getPlayerNames().get(y+1).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
+    		    		}else{
+    		    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() + ","+ gameId +")");
+    		    			vals.append(",(\""+ p.getPlayerNames().get(y+1).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
+    		    		}
+    		    		flag = false;
+    		    		gameId++;
+    	    		}
+    			}
     		}
     	}
     	SQLString.append(vals);

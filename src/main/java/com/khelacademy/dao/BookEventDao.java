@@ -12,4 +12,6 @@ public interface BookEventDao {
 	boolean UpdateStatusFromWbhook(String id, String status);
 	// NOT IN USE
 	String checkBookingStatus(String paymentId);
+    Integer getLastUserGameId();
+    Integer getCategoryId(Integer priceId);
 }
