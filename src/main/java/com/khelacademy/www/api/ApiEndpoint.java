@@ -114,9 +114,9 @@ public class ApiEndpoint {
     @GET
     @Path("/event")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response events(@QueryParam("city_id") Integer cityId) throws SQLException {
+    public Response events(@QueryParam("city_id") Integer cityId, @QueryParam("game_id") Integer gameId) throws SQLException {
         EventDao event = new EventDaoImpl();
-        return event.getEventByCityId(cityId);
+        return event.getEventByCityId(cityId, gameId);
     }
     
     @ApiOperation("get event Prices request")

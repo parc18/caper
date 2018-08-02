@@ -4,7 +4,7 @@ import javax.ws.rs.core.Response;
 
 public interface EventDao {
     Response getAllEvents();
-    Response getEventByCityId(Integer city);
+    Response getEventByCityId(Integer city, Integer gameId);
     Response getEventPrice(Integer eventId);
 
 }

@@ -52,15 +52,16 @@ public class EventDaoImpl implements EventDao{
         }).build();
     }
 
-    public Response getEventByCityId(Integer cityId) {
+    public Response getEventByCityId(Integer cityId, Integer gameId) {
 
     	PreparedStatement statement=null;
     	try {
-            if(cityId == -1){
+            if(cityId <=0 && (gameId == null || gameId==0)){
             	statement = SQLArrow.getPreparedStatement("SELECT  * from event");
             }else{
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=?");
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_city_id = ?");
     			statement.setInt(1, cityId);
+    			statement.setInt(2, gameId);
             }
 		} catch (Exception e) {
 			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY ID: " + cityId, e);
