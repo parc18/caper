@@ -329,7 +329,7 @@ public class ApiEndpoint {
     @Path("/instamojo_webhook")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public void instamojoWebhook(@FormParam("status") String status, @FormParam("payment_id") String paymentId, @FormParam("id") String id, @FormParam("transaction_id") String transactionId, @FormParam("mac") String mac, @FormParam("amount") String amount) {
+    public void instamojoWebhook(@FormParam("status") String status, @FormParam("payment_id") String paymentId, @FormParam("id") String id, @FormParam("transaction_id") String transactionId, @FormParam("mac") String mac, @FormParam("amount") String amount, @FormParam("buyer_phone") String phone) {
     	try{
     		BookEventDao book = new BookEventDaoImpl();
     		//
@@ -350,6 +350,8 @@ public class ApiEndpoint {
     		}
     		
     		if(book.UpdateStatusFromWbhook(id,paymentOrderDetailsResponse.getStatus().toString())){
+    			 SMSService smsService = new SMSService();
+    			 smsService.sendTransactionalSMS("CAPER-KA", phone, paymentId+" "+id);
     			LOGGER.info("SUCCESSFULLY UPDATED STATUS FOR ID " + id);
     		}
     	}catch(Exception e) {
