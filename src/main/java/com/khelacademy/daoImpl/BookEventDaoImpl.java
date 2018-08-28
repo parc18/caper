@@ -100,9 +100,8 @@ public class BookEventDaoImpl implements BookEventDao {
 	            	statement = SQLArrow.getPreparedStatement(SQLString.toString());
 	            	if(SQLArrow.fireBowfishing(statement) >= 1) {
 	            		int userId = 0;
-	            		statement = SQLArrow.getPreparedStatement("SELECT id FROM user where phone = ? or email = ?");
+	            		statement = SQLArrow.getPreparedStatement("SELECT id FROM user where phone = ?");
 	            		statement.setString(1, bookingRequestObject.getPhone());
-	            		statement.setString(2, bookingRequestObject.getEmail());
 	                    try (ResultSet rs1 = SQLArrow.fire(statement)) {
 	                        while (rs1.next()) {
 	                        	userId = rs1.getInt("id");
@@ -225,8 +224,8 @@ public class BookEventDaoImpl implements BookEventDao {
 	            if(rs.next())
 	            {
 	            	phone = rs.getString(1);
-	    			 SMSService smsService = new SMSService();
-	    			 smsService.sendTransactionalSMS("CAPER-KA", phone, "Thank you for Booking with KA. your TXN_ID is : "+id);
+	    			SMSService smsService = new SMSService();
+	    			smsService.sendTransactionalSMS("CAPER-KA", phone, "Thank you for Booking with KA. your TXN_ID is : "+id);
 	            }
 				SQLArrow.relax(null);
 				return true;

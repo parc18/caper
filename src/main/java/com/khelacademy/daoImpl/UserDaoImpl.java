@@ -96,10 +96,9 @@ public class UserDaoImpl implements UserDao {
     }
     @Override
     public String registerUser(User userDetails) {
-    	PreparedStatement statement = SQLArrow.getPreparedStatement("SELECT  * from user  WHERE email=? OR phone =?");
+    	PreparedStatement statement = SQLArrow.getPreparedStatement("SELECT  * from user  WHERE phone =?");
     	try {
-    		statement.setString(1, userDetails.getEmail());
-    		statement.setString(2, userDetails.getContactNumber());
+    		statement.setString(1, userDetails.getContactNumber());
     		ResultSet rs = SQLArrow.fire(statement);
     		if(rs.next()) {
     			return PresenceStatus.EXISTS.toString();
