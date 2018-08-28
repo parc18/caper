@@ -350,8 +350,6 @@ public class ApiEndpoint {
     		}
     		
     		if(book.UpdateStatusFromWbhook(id,paymentOrderDetailsResponse.getStatus().toString())){
-    			 SMSService smsService = new SMSService();
-    			 smsService.sendTransactionalSMS("CAPER-KA", phone, paymentId+" "+id);
     			LOGGER.info("SUCCESSFULLY UPDATED STATUS FOR ID " + id);
     		}
     	}catch(Exception e) {

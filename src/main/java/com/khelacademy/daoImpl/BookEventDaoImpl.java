@@ -32,6 +32,7 @@ import com.khelacademy.www.utils.Constants;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.InstamojoPaymentHelper;
 import com.khelacademy.www.utils.NoOfTickerCalculator;
+import com.khelacademy.www.utils.SMSService;
 
 public class BookEventDaoImpl implements BookEventDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -217,6 +218,16 @@ public class BookEventDaoImpl implements BookEventDao {
 			statement.setString(1, status);
 			statement.setString(2, id);
 			if(SQLArrow.fireBowfishing(statement) >= 1){
+				String phone;
+				statement = SQLArrow.getPreparedStatement("select A.phone from user as A inner join ticket as T on A.id = T.user_id inner join booking as B on T.booking_id = B.booking_id where B.txn_id = ?");
+				statement.setString(1, id);
+				ResultSet rs = SQLArrow.fire(statement);
+	            if(rs.next())
+	            {
+	            	phone = rs.getString(1);
+	    			 SMSService smsService = new SMSService();
+	    			 smsService.sendTransactionalSMS("CAPER-KA", phone, "Thank you for Booking with KA. your TXN_ID is : "+id);
+	            }
 				SQLArrow.relax(null);
 				return true;
 			}
