@@ -24,6 +24,9 @@ import com.khelacademy.www.pojos.EventPriceResponse;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.DBArrow;
+import com.khelacademy.www.utils.RedisBullet;
+
+import redis.clients.jedis.Jedis;
 
 public class EventDaoImpl implements EventDao{
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -59,7 +62,7 @@ public class EventDaoImpl implements EventDao{
             if(cityId <=0 && (gameId == null || gameId==0)){
             	statement = SQLArrow.getPreparedStatement("SELECT  * from event");
             }else{
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_city_id = ?");
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_game_id = ?");
     			statement.setInt(1, cityId);
     			statement.setInt(2, gameId);
             }
@@ -72,7 +75,9 @@ public class EventDaoImpl implements EventDao{
         	while (rs.next()) {
         	Event event = new Event();
             event.setDate(rs.getDate("eventdate"));
-            event.setDescription(rs.getString("description"));
+        	Jedis jedis = RedisBullet.getPool().getResource();
+        	//jedis.get(Integer.toString(rs.getInt("event_id")));
+            event.setDescription(jedis.get(Integer.toString(rs.getInt("event_id"))));
             event.setEventId(rs.getInt("event_id"));
             event.setEventVenue(rs.getString("venue"));
             event.setEventType(rs.getInt("event_type"));

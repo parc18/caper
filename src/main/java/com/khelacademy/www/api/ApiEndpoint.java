@@ -19,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import redis.clients.jedis.Jedis;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
@@ -62,6 +63,7 @@ import com.khelacademy.www.pojos.Order;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.PaymentRequestValidator;
+import com.khelacademy.www.utils.RedisBullet;
 import com.khelacademy.www.utils.SMSService;
 
 /**
@@ -82,6 +84,9 @@ public class ApiEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
     	LOGGER.debug("Server is running Fine Check DB credentials");
+    	//RedisBullet rs = new RedisBullet();
+    	Jedis jedis = RedisBullet.getPool().getResource();
+    	jedis.set("foo", "bar");
         return Response.ok("{\"message\":\"pong\"}").build();
     }
 
