@@ -78,6 +78,7 @@ public class EventDaoImpl implements EventDao{
         	Jedis jedis = RedisBullet.getPool().getResource();
         	//jedis.get(Integer.toString(rs.getInt("event_id")));
             event.setDescription(jedis.get(Integer.toString(rs.getInt("event_id"))));
+            jedis.close();
             event.setEventId(rs.getInt("event_id"));
             event.setEventVenue(rs.getString("venue"));
             event.setEventType(rs.getInt("event_type"));
