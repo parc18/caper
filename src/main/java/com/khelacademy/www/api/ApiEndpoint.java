@@ -48,12 +48,16 @@ import com.instamojo.wrapper.model.PaymentOrder;
 import com.instamojo.wrapper.response.CreatePaymentOrderResponse;
 import com.instamojo.wrapper.response.PaymentOrderDetailsResponse;
 import com.khelacademy.dao.BookEventDao;
+import com.khelacademy.dao.CityDao;
 import com.khelacademy.dao.EventDao;
 import com.khelacademy.dao.HomeDao;
+import com.khelacademy.dao.SportsDao;
 import com.khelacademy.dao.UserDao;
+import com.khelacademy.daoImpl.CityDaoImpl;
 import com.khelacademy.daoImpl.BookEventDaoImpl;
 import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.daoImpl.HomeDaoImpl;
+import com.khelacademy.daoImpl.SportsDaoImpl;
 import com.khelacademy.daoImpl.UserDaoImpl;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
@@ -360,5 +364,23 @@ public class ApiEndpoint {
     	}catch(Exception e) {
     		e.printStackTrace();
     	}
+    }
+    @ApiOperation("get Cities")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @GET
+    @Path("/cities")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response city_details() throws SQLException {
+    	CityDao ct = new CityDaoImpl();
+        return ct.getAllCities();
+    }
+    @ApiOperation("get sports")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
+    @GET
+    @Path("/sports")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response sports_details() throws SQLException {
+       SportsDao spt = new SportsDaoImpl();
+        return spt.getAllSports();
     }
 }
