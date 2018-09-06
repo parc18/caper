@@ -27,6 +27,7 @@ import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.RedisBullet;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class EventDaoImpl implements EventDao{
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -75,10 +76,12 @@ public class EventDaoImpl implements EventDao{
         	while (rs.next()) {
         	Event event = new Event();
             event.setDate(rs.getDate("eventdate"));
-        	Jedis jedis = RedisBullet.getPool().getResource();
+            JedisPool jedisPool = RedisBullet.getPool();
+        	Jedis jedis = jedisPool.getResource();
         	//jedis.get(Integer.toString(rs.getInt("event_id")));
             event.setDescription(jedis.get(Integer.toString(rs.getInt("event_id"))));
             jedis.close();
+            jedisPool.close();
             event.setEventId(rs.getInt("event_id"));
             event.setEventVenue(rs.getString("venue"));
             event.setEventType(rs.getInt("event_type"));

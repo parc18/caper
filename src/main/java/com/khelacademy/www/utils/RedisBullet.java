@@ -16,7 +16,7 @@ public class RedisBullet {
 			e.printStackTrace();
 		}
 		  JedisPoolConfig poolConfig = new JedisPoolConfig();
-		  poolConfig.setMaxTotal(10);
+		  poolConfig.setMaxTotal(20);
 		  poolConfig.setMaxIdle(5);
 		  poolConfig.setMinIdle(1);
 		  poolConfig.setTestOnBorrow(true);
