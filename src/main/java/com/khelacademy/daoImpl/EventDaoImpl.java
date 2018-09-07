@@ -60,10 +60,16 @@ public class EventDaoImpl implements EventDao{
 
     	PreparedStatement statement=null;
     	try {
-            if(cityId <=0 && (gameId == null || gameId==0)){
+            if(cityId <=0 && (gameId == null || gameId<=0)){
             	statement = SQLArrow.getPreparedStatement("SELECT  * from event");
-            }else{
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_game_id = ?");
+            }else if(cityId>0 &&  (gameId == null || gameId<=0)){
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=?");
+    			statement.setInt(1, cityId);
+            }else if(cityId<=0 &&  (gameId != null || gameId>0)){
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_type = ?");
+    			statement.setInt(1, gameId);
+            }else if(cityId>0 &&  (gameId != null || gameId>0)){
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_type = ?");
     			statement.setInt(1, cityId);
     			statement.setInt(2, gameId);
             }
