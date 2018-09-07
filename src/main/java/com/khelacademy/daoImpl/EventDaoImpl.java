@@ -94,10 +94,12 @@ public class EventDaoImpl implements EventDao{
             event.setCity(rs.getString("event_city"));
             event.setEventName(rs.getString("event_name"));
             event.setEventImgUrl(rs.getString("img_url"));
-            event.setOrganizers(new String[] {"LODHA Group", "DOFF"});
-            event.setSponsers(new String[] {"RIL", "TATA Group"});
+            event.setOrganizers(new String[] {"KhelAcademy", "Bflit"});
+            event.setSponsers(new String[] {"KhelAcademy", "Bflit"});
             event.setPrice(rs.getInt("start_price"));
             event.setTimings(rs.getString("timings"));
+            event.setTimings(rs.getString("timings"));
+            event.setStatus(rs.getInt("status"));
             allEvents.put(event.getEventId(),event);
         	}
         }catch(Exception e){
