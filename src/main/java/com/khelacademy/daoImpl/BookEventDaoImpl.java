@@ -216,7 +216,9 @@ public class BookEventDaoImpl implements BookEventDao {
     	try {
 			statement.setString(1, status);
 			statement.setString(2, id);
-			if(SQLArrow.fireBowfishing(statement) >= 1){
+			int i = SQLArrow.fireBowfishing(statement);
+			System.out.println(i + "F**K It");
+			if(i >= 1){
 				String phone;
 				statement = SQLArrow.getPreparedStatement("select A.phone from user as A inner join ticket as T on A.id = T.user_id inner join booking as B on T.booking_id = B.booking_id where B.txn_id = ?");
 				statement.setString(1, id);
