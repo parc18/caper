@@ -14,7 +14,6 @@ import net.bytebuddy.implementation.bytecode.Throw;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.instamojo.wrapper.model.PaymentOrder;
 import com.instamojo.wrapper.response.CreatePaymentOrderResponse;
@@ -38,12 +37,6 @@ import com.khelacademy.www.utils.SMSService;
 public class BookEventDaoImpl implements BookEventDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
     DBArrow SQLArrow = DBArrow.getArrow();
-    private static String WEBHOOK_URL;
-    
-    @Value("${WEBHOOK_URL}")
-    private void setDatabase(String WEBHOOK_URL) {
-    	BookEventDaoImpl.WEBHOOK_URL = WEBHOOK_URL;
-    }
 	@Override
 	public Response bookSingleTicket(BookingRequestObject bookingRequestObject, boolean isSingle) throws UnsupportedEncodingException {
 		User user = new User();
@@ -138,8 +131,8 @@ public class BookEventDaoImpl implements BookEventDao {
 	        		        order.setCurrency("INR");
 	        		        order.setAmount((double) bookingRequestObject.getTotalAmount());
 	        		        order.setRedirectUrl(Constants.REDIRECT_URL);
-	        		        System.out.println(WEBHOOK_URL + "F**K It");
-	        		        order.setWebhookUrl(WEBHOOK_URL);
+	        		        System.out.println(Constants.WEBHOOK_URL + "kkkkkk");
+	        		        order.setWebhookUrl(Constants.WEBHOOK_URL);
 	        		        order.setTransactionId(Integer.toString(bookingId));
 	        		    	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
 	        		    	instamojoPaymentHelper.setOrder(order);
@@ -219,16 +212,14 @@ public class BookEventDaoImpl implements BookEventDao {
 
 	@Override
 	public boolean UpdateStatusFromWbhook(String id, String status) {
+		System.out.println(id + status + "F**K It2");
     	PreparedStatement statement = SQLArrow.getPreparedStatement("UPDATE booking SET status=? where txn_id=?");
-    	
     	System.out.println(statement.toString());
-    	System.out.println("Yeah");
     	try {
 			statement.setString(1, status);
 			statement.setString(2, id);
-			System.out.println(statement.toString() + "two");
 			int i = SQLArrow.fireBowfishing(statement);
-			System.out.println(id + "F**K It");
+			System.out.println(i + "F**K It");
 			if(i >= 1){
 				String phone;
 				statement = SQLArrow.getPreparedStatement("select A.phone from user as A inner join ticket as T on A.id = T.user_id inner join booking as B on T.booking_id = B.booking_id where B.txn_id = ?");

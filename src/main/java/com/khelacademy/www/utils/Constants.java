@@ -8,11 +8,6 @@ public class Constants {
     public static final String SUCCESS_RESPONSE_VALUE = "SUCCESS!!";
     public static final String FAILURE_RESPONSE_VALUE = "FAILURE!!";
     public static final String REDIRECT_URL = "http://www.khelacademy.com/thankyou";
-    public static String WEBHOOK_URL;
-    
-    @Value("${WEBHOOK_URL}")
-    private void setDbPass(String dbPass) {
-    	Constants.WEBHOOK_URL = dbPass;
-	}
+    public static final String WEBHOOK_URL = "https://capers-dev.herokuapp.com/api/instamojo_webhook/";
     
 }
