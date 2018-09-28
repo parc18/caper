@@ -10,7 +10,7 @@ public class Constants {
     public static final String REDIRECT_URL = "http://www.khelacademy.com/thankyou";
     public static String WEBHOOK_URL;
     
-    @Value("${dbPass}")
+    @Value("${WEBHOOK_URL}")
     private void setDbPass(String dbPass) {
     	Constants.WEBHOOK_URL = dbPass;
 	}

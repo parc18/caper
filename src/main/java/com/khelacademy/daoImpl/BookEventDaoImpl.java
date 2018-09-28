@@ -212,10 +212,13 @@ public class BookEventDaoImpl implements BookEventDao {
 	@Override
 	public boolean UpdateStatusFromWbhook(String id, String status) {
     	PreparedStatement statement = SQLArrow.getPreparedStatement("UPDATE booking SET status=? where txn_id=?");
+    	
     	System.out.println(statement.toString());
+    	System.out.println("Yeah");
     	try {
 			statement.setString(1, status);
 			statement.setString(2, id);
+			System.out.println(statement.toString() + "two");
 			int i = SQLArrow.fireBowfishing(statement);
 			System.out.println(i + "F**K It");
 			if(i >= 1){
