@@ -131,6 +131,7 @@ public class BookEventDaoImpl implements BookEventDao {
 	        		        order.setCurrency("INR");
 	        		        order.setAmount((double) bookingRequestObject.getTotalAmount());
 	        		        order.setRedirectUrl(Constants.REDIRECT_URL);
+	        		        System.out.println(Constants.WEBHOOK_URL + "F**K It");
 	        		        order.setWebhookUrl(Constants.WEBHOOK_URL);
 	        		        order.setTransactionId(Integer.toString(bookingId));
 	        		    	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
@@ -220,7 +221,7 @@ public class BookEventDaoImpl implements BookEventDao {
 			statement.setString(2, id);
 			System.out.println(statement.toString() + "two");
 			int i = SQLArrow.fireBowfishing(statement);
-			System.out.println(i + "F**K It");
+			System.out.println(id + "F**K It");
 			if(i >= 1){
 				String phone;
 				statement = SQLArrow.getPreparedStatement("select A.phone from user as A inner join ticket as T on A.id = T.user_id inner join booking as B on T.booking_id = B.booking_id where B.txn_id = ?");
