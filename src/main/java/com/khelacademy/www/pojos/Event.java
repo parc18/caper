@@ -17,6 +17,7 @@ public class Event {
     private String[] sponsers;
     private String[] organizers;
     private String timings;
+    private String phone;
 
     public HashMap <Integer, Integer> getPrices() {
         return prices;
@@ -131,5 +132,11 @@ public class Event {
 	}
 	public void setTimings(String timings) {
 		this.timings = timings;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 }

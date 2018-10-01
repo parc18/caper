@@ -100,6 +100,7 @@ public class EventDaoImpl implements EventDao{
             event.setTimings(rs.getString("timings"));
             event.setTimings(rs.getString("timings"));
             event.setStatus(rs.getInt("status"));
+            event.setPhone(rs.getString("phone"));
             allEvents.put(event.getEventId(),event);
         	}
         }catch(Exception e){
