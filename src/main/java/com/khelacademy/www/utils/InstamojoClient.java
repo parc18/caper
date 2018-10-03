@@ -35,8 +35,4 @@ public class InstamojoClient {
     public static Instamojo getInstamojoClient() throws ConnectionException {
     	return InstamojoImpl.getApi(CLIENT_ID, CLIENT_SECRET, API_ENDPOINT, AUTH_ENDPOINT);
     }
-
-    public static void print() {
-    	System.out.println(CLIENT_ID.toString());
-    }
 }
