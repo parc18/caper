@@ -66,6 +66,7 @@ import com.khelacademy.www.pojos.OTPContent;
 import com.khelacademy.www.pojos.Order;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.utils.InstamojoClient;
 import com.khelacademy.www.utils.PaymentRequestValidator;
 import com.khelacademy.www.utils.RedisBullet;
 import com.khelacademy.www.utils.SMSService;
@@ -244,7 +245,7 @@ public class ApiEndpoint {
         
         try {
             // gets the reference to the instamojo api
-            api = InstamojoImpl.getApi("test_Ubu7aJMhA9t6fvhnDuhe4ak9oHQP3RCPxtJ", "test_aCqcPrXNeZ0RJBDjx9i8zhU0csN61WNkAmWbP1aOPJMd2UcLm4Z87HkxMjsSGp9CfDDoyVb8fujQpA1ebeAnduTrCDxIXVYQTm2Zr95VJULbbrYzwHcVRa4RBLR", "https://test.instamojo.com/v2/", "https://test.instamojo.com/oauth2/token/");
+            api = InstamojoClient.getInstamojoClient();
         } catch (Exception e) {
 
         }
@@ -311,7 +312,7 @@ public class ApiEndpoint {
     	Instamojo api = null;
         try {
             // gets the reference to the instamojo api
-            api = InstamojoImpl.getApi("test_Ubu7aJMhA9t6fvhnDuhe4ak9oHQP3RCPxtJ", "test_aCqcPrXNeZ0RJBDjx9i8zhU0csN61WNkAmWbP1aOPJMd2UcLm4Z87HkxMjsSGp9CfDDoyVb8fujQpA1ebeAnduTrCDxIXVYQTm2Zr95VJULbbrYzwHcVRa4RBLR", "https://test.instamojo.com/v2/", "https://test.instamojo.com/oauth2/token/");
+            api = InstamojoClient.getInstamojoClient();
         } catch (Exception e) {
 
         }
@@ -345,7 +346,7 @@ public class ApiEndpoint {
         	Instamojo api = null;
             try {
                 // gets the reference to the instamojo api
-                api = InstamojoImpl.getApi("test_Ubu7aJMhA9t6fvhnDuhe4ak9oHQP3RCPxtJ", "test_aCqcPrXNeZ0RJBDjx9i8zhU0csN61WNkAmWbP1aOPJMd2UcLm4Z87HkxMjsSGp9CfDDoyVb8fujQpA1ebeAnduTrCDxIXVYQTm2Zr95VJULbbrYzwHcVRa4RBLR", "https://test.instamojo.com/v2/", "https://test.instamojo.com/oauth2/token/");
+                api = InstamojoClient.getInstamojoClient();
             } catch (Exception e) {
 
             }
