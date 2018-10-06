@@ -57,7 +57,7 @@ public class InstamojoPaymentHelper {
 	public CreatePaymentOrderResponse initiatePayment(PaymentOrder order) {
 	    try {
 	        // gets the reference to the instamojo api
-	    	 api = InstamojoImpl.getApi("test_BsOJjSEQEIYmIQt7Q3XQ8Qa0RufwXQPWQw4", "test_WxslGlvo1AfACLE4ykxFpX6awVK3yhjU9ohBmFrwpY3E0wX8lyzlLqCqLd7B5U9CeEOpFGjIqQjM65EJ0JKxenWqo0ais4bDobviNv5JiPz7SnPgOjotdhqYPOt", "https://test.instamojo.com/v2/", "https://test.instamojo.com/oauth2/token/");
+	    	 api = InstamojoClient.getInstamojoClient();
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	    }
