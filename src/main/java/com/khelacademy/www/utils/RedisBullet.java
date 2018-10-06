@@ -3,14 +3,22 @@ package com.khelacademy.www.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisBullet {
+	private static String REDIS_URL;
+	
+    @Value("${redisUrl}")
+	private void setDbUser(String REDIS_URL) {
+    	RedisBullet.REDIS_URL = REDIS_URL;
+	}
 	public static JedisPool getPool() {
 		  URI redisURI = null;
 		try {
-			redisURI = new URI("redis://h:p1f18fb68b02dc68c3d7ccfda566b1bd0242cab7acec000e500ed169e6d887618@ec2-18-211-119-207.compute-1.amazonaws.com:36909");
+			redisURI = new URI(REDIS_URL);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
