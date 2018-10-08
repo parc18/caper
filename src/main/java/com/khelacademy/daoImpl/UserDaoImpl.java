@@ -173,7 +173,6 @@ public class UserDaoImpl implements UserDao {
     	
     	
     	PreparedStatement statement = SQLArrow.getPreparedStatement(SQLString.toString());
-    	System.out.println(SQLString.toString()	);
     	try {
 			if(SQLArrow.fireBowfishing(statement) >= 1) {
 				return PresenceStatus.ALL_TEMP_USER_SUCCESS.toString();

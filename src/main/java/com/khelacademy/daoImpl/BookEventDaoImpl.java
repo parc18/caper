@@ -127,11 +127,10 @@ public class BookEventDaoImpl implements BookEventDao {
 	        		        order.setName(user.getFirstName());
 	        		        order.setEmail(user.getEmail());
 	        		        order.setPhone(user.getContactNumber());
-	        		        order.setDescription("Booking a event for user with email: " + user.getEmail() + "and evemtid" + bookingRequestObject.getEventId());
+	        		        order.setDescription("Booking a event for  : " + user.getContactNumber() + " and Event Id " + bookingRequestObject.getEventId());
 	        		        order.setCurrency("INR");
 	        		        order.setAmount((double) bookingRequestObject.getTotalAmount());
 	        		        order.setRedirectUrl(Constants.REDIRECT_URL);
-	        		        System.out.println(Constants.WEBHOOK_URL + "kkkkkk");
 	        		        order.setWebhookUrl(Constants.WEBHOOK_URL);
 	        		        order.setTransactionId(Integer.toString(bookingId));
 	        		    	InstamojoPaymentHelper instamojoPaymentHelper = new InstamojoPaymentHelper();
@@ -198,28 +197,22 @@ public class BookEventDaoImpl implements BookEventDao {
 		
 		try {
 			if(userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.REGISTRED_SUCCESSFULLY.toString())){
-				System.out.println(PresenceStatus.REGISTRED_SUCCESSFULLY);
+				LOGGER.info("New Registered User " + user.getContactNumber());
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		// TODO Auto-generated method stub
 		return null;
 	
 	}
 
 	@Override
 	public boolean UpdateStatusFromWbhook(String id, String status) {
-		System.out.println(id + status + "F**K It2");
     	PreparedStatement statement = SQLArrow.getPreparedStatement("UPDATE booking SET status=? where txn_id=?");
-    	System.out.println(statement.toString());
     	try {
 			statement.setString(1, status);
 			statement.setString(2, id);
 			int i = SQLArrow.fireBowfishing(statement);
-			System.out.println(i + "F**K It");
 			if(i >= 1){
 				String phone;
 				statement = SQLArrow.getPreparedStatement("select A.phone from user as A inner join ticket as T on A.id = T.user_id inner join booking as B on T.booking_id = B.booking_id where B.txn_id = ?");

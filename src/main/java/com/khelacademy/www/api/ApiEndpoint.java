@@ -66,6 +66,7 @@ import com.khelacademy.www.pojos.OTPContent;
 import com.khelacademy.www.pojos.Order;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.utils.Constants;
 import com.khelacademy.www.utils.InstamojoClient;
 import com.khelacademy.www.utils.PaymentRequestValidator;
 import com.khelacademy.www.utils.RedisBullet;
@@ -89,9 +90,6 @@ public class ApiEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
     	LOGGER.debug("Server is running Fine Check DB credentials");
-    	//RedisBullet rs = new RedisBullet();
-    	Jedis jedis = RedisBullet.getPool().getResource();
-    	jedis.set("foo", "bar");
         return Response.ok("{\"message\":\"pong\"}").build();
     }
 
@@ -230,7 +228,6 @@ public class ApiEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response payment(@RequestBody Order orderObj) throws SQLException {
-        System.out.print(orderObj.toString());
         Instamojo api = null;
         PaymentOrder order = new PaymentOrder();
         order.setName(orderObj.getName());
@@ -256,7 +253,7 @@ public class ApiEndpoint {
             try {
                 CreatePaymentOrderResponse createPaymentOrderResponse = api.createNewPaymentOrder(order);
                 // print the status of the payment order.
-                System.out.println(createPaymentOrderResponse.getPaymentOrder().toString());
+                //System.out.println(createPaymentOrderResponse.getPaymentOrder().toString());
                // createPaymentOrderResponse.getJsonResponse()
                 //paymentOrderResponse = ServiceUtil.convertToSuccessResponse(createPaymentOrderResponse.toString());
                 return Response.ok(createPaymentOrderResponse).build();
