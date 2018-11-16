@@ -61,17 +61,17 @@ public class EventDaoImpl implements EventDao{
     	PreparedStatement statement=null;
     	try {
             if(cityId <=0 && (gameId == null || gameId<=0)){
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event");
+                statement = SQLArrow.getPreparedStatement("SELECT  * from event  where eventdate > now()");
             }else if(cityId>0 &&  (gameId == null || gameId<=0)){
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=?");
-    			statement.setInt(1, cityId);
+                statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and eventdate > now()");
+                statement.setInt(1, cityId);
             }else if(cityId<=0 &&  (gameId != null || gameId>0)){
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_type = ?");
-    			statement.setInt(1, gameId);
+                statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_type = ? and eventdate > now()");
+                statement.setInt(1, gameId);
             }else if(cityId>0 &&  (gameId != null || gameId>0)){
-            	statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_type = ?");
-    			statement.setInt(1, cityId);
-    			statement.setInt(2, gameId);
+                statement = SQLArrow.getPreparedStatement("SELECT  * from event  WHERE event_city_id=? and event_type = ? and eventdate > now()");
+                statement.setInt(1, cityId);
+                statement.setInt(2, gameId);
             }
 		} catch (Exception e) {
 			LOGGER.error("ERROR IN PREPARING STATEMENT FOR CITY BASED EVENT FOR THE CITY ID: " + cityId, e);
@@ -100,7 +100,6 @@ public class EventDaoImpl implements EventDao{
             event.setTimings(rs.getString("timings"));
             event.setTimings(rs.getString("timings"));
             event.setStatus(rs.getInt("status"));
-            event.setPhone(rs.getString("phone"));
             allEvents.put(event.getEventId(),event);
         	}
         }catch(Exception e){
