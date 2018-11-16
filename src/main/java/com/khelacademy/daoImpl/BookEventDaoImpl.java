@@ -78,6 +78,7 @@ public class BookEventDaoImpl implements BookEventDao {
                 if(rs.next())
                 {
                 	bookingId = rs.getInt(1);
+					bookingRequestObject.setBookingId(bookingId);
                 }
 	            if(bookingTableUpdate > 0 && bookingId > 0){
 	            	StringBuffer SQLString = new StringBuffer("INSERT INTO booking_prices  (booking_id, price_id, quantity ) values ");

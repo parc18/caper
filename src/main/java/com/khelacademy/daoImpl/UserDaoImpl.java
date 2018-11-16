@@ -135,7 +135,7 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public String recordTempUsers(BookingRequestObject bookingRequestObject) throws SQLException{
-    	StringBuffer SQLString = new StringBuffer("INSERT INTO temp_users  (NAME, USER_ID, PRICE_ID, game_user_id) values ");
+    	StringBuffer SQLString = new StringBuffer("INSERT INTO temp_users  (NAME, USER_ID, PRICE_ID, booking_id ,game_user_id  values ");
     	BookEventDaoImpl bookEventDaoImpl = new BookEventDaoImpl();
     	int gameId = bookEventDaoImpl.getLastUserGameId();
     	gameId++;
