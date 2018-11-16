@@ -115,7 +115,7 @@ public class BookEventDaoImpl implements BookEventDao {
 	    				if(!userDao.recordTempUsers(bookingRequestObject).equals(PresenceStatus.ALL_TEMP_USER_SUCCESS.toString())){
 	    					LOGGER.error("TEMP USERS GOT FUCKED FOR SOME REASON");
 	    					SQLArrow.rollBack(null);
-	    					throw new Error("TEMP USERS GOT FUCKED FOR SOME REASON");
+
 	    				}
 	            		statement = SQLArrow.getPreparedStatementForId("INSERT INTO ticket  (event_id, booking_id, user_id ) values ( ?, ?, ?)");
 	            		statement.setInt(1, bookingRequestObject.getEventId());
