@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -170,8 +171,8 @@ public class UserDaoImpl implements UserDao {
 			}
 		}
     	SQLString.append(vals);
-    	
-    	
+
+		System.out.println(SQLString);
     	PreparedStatement statement = SQLArrow.getPreparedStatement(SQLString.toString());
     	try {
 			if(SQLArrow.fireBowfishing(statement) >= 1) {
