@@ -8,7 +8,7 @@ public class BookingRequestObject {
 	private String email;
 	private String phone;
 	private Integer totalAmount;
-
+	private Integer bookingId;
 	public Integer getTotalAmount() {
 		return totalAmount;
 	}
@@ -46,6 +46,13 @@ public class BookingRequestObject {
 	}
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+	public Integer getBookingId() {
+		return bookingId;
+	}
+
+	public void setBookingId(Integer bookingId) {
+		this.bookingId = bookingId;
 	}
 	@Override
 	public String toString() {

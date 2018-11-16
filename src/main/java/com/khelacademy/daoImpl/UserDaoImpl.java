@@ -142,33 +142,33 @@ public class UserDaoImpl implements UserDao {
     	
     	StringBuffer vals = new StringBuffer("");
     	boolean flag = true;
-    	for (PriceDetails p : bookingRequestObject.getPriceDetail()) {
-    		if(p.getQuantity().intValue() > 0){
-    			if(bookEventDaoImpl.getCategoryId(p.getPriceId()).intValue() < GameCategory.BOYS_DOUBLES || bookEventDaoImpl.getCategoryId(p.getPriceId()).intValue() == GameCategory.TEAM_EVENTS) {
-    	    		for(int y=1 ; y<= p.getQuantity(); y++){
-    		    		if(flag) {
-    		    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
-    		    		}else{
-    		    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +  ","+ gameId +")");
-    		    		}
-    		    		flag = false;
-    		    		gameId++;
-    	    		}
-    			}else {
-    	    		for(int y=1 ; y<= p.getQuantity(); y*=2){
-    		    		if(flag) {
-    		    			vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
-    		    			vals.append(",(\""+ p.getPlayerNames().get(y+1).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
-    		    		}else{
-    		    			vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() + ","+ gameId +")");
-    		    			vals.append(",(\""+ p.getPlayerNames().get(y+1).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ gameId +")");
-    		    		}
-    		    		flag = false;
-    		    		gameId++;
-    	    		}
-    			}
-    		}
-    	}
+		for (PriceDetails p : bookingRequestObject.getPriceDetail()) {
+			if(p.getQuantity().intValue() > 0){
+				if(bookEventDaoImpl.getCategoryId(p.getPriceId()).intValue() < GameCategory.BOYS_DOUBLES || bookEventDaoImpl.getCategoryId(p.getPriceId()).intValue() == GameCategory.TEAM_EVENTS) {
+					for(int y=1 ; y<= p.getQuantity(); y++){
+						if(flag) {
+							vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ bookingRequestObject.getBookingId() + ","+ gameId +")");
+						}else{
+							vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() +  ","+ bookingRequestObject.getBookingId() + ","+ gameId +")");
+						}
+						flag = false;
+						gameId++;
+					}
+				}else {
+					for(int y=1 ; y<= p.getQuantity(); y*=2){
+						if(flag) {
+							vals.append("(\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ bookingRequestObject.getBookingId() + ","+ gameId +")");
+							vals.append(",(\""+ p.getPlayerNames().get(y+1).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ bookingRequestObject.getBookingId() + ","+ gameId +")");
+						}else{
+							vals.append(", (\""+ p.getPlayerNames().get(y).toString() + "\"," +  bookingRequestObject.getUserId() + ","+  p.getPriceId() + ","+ bookingRequestObject.getBookingId() + ","+ gameId +")");
+							vals.append(",(\""+ p.getPlayerNames().get(y+1).toString() + "\"," +  bookingRequestObject.getUserId() + ","+ p.getPriceId() + ","+ bookingRequestObject.getBookingId() + ","+ gameId +")");
+						}
+						flag = false;
+						gameId++;
+					}
+				}
+			}
+		}
     	SQLString.append(vals);
     	
     	
