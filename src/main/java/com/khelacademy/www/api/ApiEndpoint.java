@@ -84,9 +84,6 @@ import com.khelacademy.www.utils.SMSService;
 public class ApiEndpoint {	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpoint.class);
     
-    @Autowired
-    EventDaoImpl userDao;
-    
     @ApiOperation("Ping request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @GET
@@ -117,7 +114,8 @@ public class ApiEndpoint {
     @Path("/user_details")
     @Produces(MediaType.APPLICATION_JSON)
     public Response user_details(@QueryParam("user_id") Integer userId) throws SQLException {
-        return userDao.getUserById(userId);
+    	UserDao user = new UserDaoImpl();
+    	return user.getUserById(userId);
     }
 
     @ApiOperation("get event request")

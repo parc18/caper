@@ -30,7 +30,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
     DBArrow SQLArrow = DBArrow.getArrow();
