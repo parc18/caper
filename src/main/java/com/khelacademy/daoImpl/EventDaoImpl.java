@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.khelacademy.dao.EventDao;
 import com.khelacademy.www.pojos.ApiFormatter;
@@ -29,6 +30,7 @@ import com.khelacademy.www.utils.RedisBullet;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+@Service
 public class EventDaoImpl implements EventDao{
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
     DBArrow SQLArrow = DBArrow.getArrow();
