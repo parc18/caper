@@ -85,7 +85,7 @@ public class ApiEndpoint {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpoint.class);
     
     @Autowired
-    UserDao userDao;
+    EventDaoImpl userDao;
     
     @ApiOperation("Ping request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
