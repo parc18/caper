@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.*;
 import java.sql.PreparedStatement;
@@ -31,7 +32,7 @@ import java.util.List;
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
     DBArrow SQLArrow = DBArrow.getArrow();
-    
+
     @Override
     public Response getUserById(Integer userId) throws SQLException {
     	LOGGER.info("GET USER IS CALLED FOR ID: " + userId);
@@ -126,7 +127,7 @@ public class UserDaoImpl implements UserDao {
 //            	String a= msg.sendSMS(userDetails.getContactNumber());
 //            	return a;
             	SQLArrow.relax(null);
-            	return PresenceStatus.REGISTRED_SUCCESSFULLY.toString();
+            	return PresenceStatus.REGISTRED_SUCCESSFULLY_BUT_NOT_OTP_VERIFIED.toString();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -177,6 +178,7 @@ public class UserDaoImpl implements UserDao {
     	try {
 			if(SQLArrow.fireBowfishing(statement) >= 1) {
 				return PresenceStatus.ALL_TEMP_USER_SUCCESS.toString();
+
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -82,7 +83,10 @@ import com.khelacademy.www.utils.SMSService;
 @Path("/api")
 public class ApiEndpoint {	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpoint.class);
-	
+    
+    @Autowired
+    UserDao userDao;
+    
     @ApiOperation("Ping request")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
     @GET
@@ -113,8 +117,7 @@ public class ApiEndpoint {
     @Path("/user_details")
     @Produces(MediaType.APPLICATION_JSON)
     public Response user_details(@QueryParam("user_id") Integer userId) throws SQLException {
-        UserDao user = new UserDaoImpl();
-        return user.getUserById(userId);
+        return userDao.getUserById(userId);
     }
 
     @ApiOperation("get event request")
