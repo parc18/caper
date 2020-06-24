@@ -1,11 +1,15 @@
 package com.khelacademy.dao;
 
-import com.khelacademy.www.pojos.BookingRequestObject;
-import com.khelacademy.www.pojos.User;
+import java.sql.SQLException;
 
 import javax.ws.rs.core.Response;
 
-import java.sql.SQLException;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import com.khelacademy.model.BasicUserDetails;
+import com.khelacademy.www.pojos.BookingRequestObject;
+import com.khelacademy.www.pojos.User;
 
 public interface UserDao {
     Response getUserById(Integer userId) throws SQLException;
@@ -17,4 +21,6 @@ public interface UserDao {
     String recordTempUsers(BookingRequestObject requestObject) throws SQLException;
     
 	boolean updateStatus(String phone, Integer status);
+	
+	BasicUserDetails getJwt(String username, String password); 
 }

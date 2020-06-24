@@ -1,7 +1,25 @@
 package com.khelacademy.daoImpl;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.Response;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.khelacademy.dao.UserDao;
-import com.khelacademy.www.api.ApiEndpoint;
+import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.MyErrors;
@@ -9,30 +27,17 @@ import com.khelacademy.www.pojos.PriceDetails;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
-import com.khelacademy.www.services.UserStatus;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.GameCategory;
 import com.khelacademy.www.utils.UserUtils;
-import com.khelacademy.www.utils.SMSService;
 
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.awt.*;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
+@Component
+@Transactional
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
     DBArrow SQLArrow = DBArrow.getArrow();
+	@Autowired
+	private SessionFactory sessionFactory;
 
     @Override
     public Response getUserById(Integer userId) throws SQLException {
@@ -186,5 +191,17 @@ public class UserDaoImpl implements UserDao {
 			e.printStackTrace();
 		}
 		return PresenceStatus.UNKNOWN_ERROR.toString();
+	}
+
+	@Override
+	public BasicUserDetails getJwt(String username, String password) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.username =:uname";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("uname", username);
+		List<BasicUserDetails> results = query.list();
+		return results.get(0);
+		//return null;
 	}
 }

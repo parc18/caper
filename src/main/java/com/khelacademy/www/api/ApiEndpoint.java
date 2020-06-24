@@ -89,9 +89,18 @@ import com.khelacademy.www.utils.SMSService;
 @RequestMapping(value = "/api")
 public class ApiEndpoint {	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpoint.class);
-    @RequestMapping(value = "/ping", method = RequestMethod.GET)
+	//@Autowired
+	//BasicUserDetailRespository basicUserDetailRespository; 
+	
+	
+	@Autowired
+	UserDao userDao;
+
+	@RequestMapping(value = "/ping", method = RequestMethod.GET)
     public ResponseEntity<?> ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
     	LOGGER.debug("Server is running Fine Check DB credentials");
+    	//ßßßUserDao userDao = new UserDaoImpl();
+    	userDao.getJwt("manish", "");
       	ApiFormatter<String>  events= ServiceUtil.convertToSuccessResponse("ok");
         return ResponseEntity.ok(events);
     }
