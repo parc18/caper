@@ -10,8 +10,6 @@ import java.sql.SQLException;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import net.bytebuddy.implementation.bytecode.Throw;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

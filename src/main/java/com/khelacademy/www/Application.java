@@ -17,6 +17,7 @@ package com.khelacademy.www;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * The application entry-point.
@@ -24,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Running using Spring Boot maven plugin: <code>mvn spring-boot:run</code>
  */
 @SpringBootApplication
+@ComponentScan("com.khelacademy")
 public class Application {
 
     public static void main(String[] args) {

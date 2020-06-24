@@ -23,6 +23,7 @@ import redis.clients.jedis.Jedis;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -38,10 +39,14 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.holonplatform.jaxrs.swagger.annotations.ApiDefinition;
 import com.instamojo.wrapper.api.Instamojo;
 import com.instamojo.wrapper.api.InstamojoImpl;
 import com.instamojo.wrapper.exception.ConnectionException;
@@ -60,8 +65,10 @@ import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.daoImpl.HomeDaoImpl;
 import com.khelacademy.daoImpl.SportsDaoImpl;
 import com.khelacademy.daoImpl.UserDaoImpl;
+import com.khelacademy.model.JwtResponse;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
+import com.khelacademy.www.pojos.Event;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.OTPContent;
 import com.khelacademy.www.pojos.Order;
@@ -77,21 +84,16 @@ import com.khelacademy.www.utils.SMSService;
  * JAX-RS API endpoint.
  */
 @SuppressWarnings("restriction")
-@ApiDefinition(docsPath = "/api/docs", title = "Example API", version = "v1", prettyPrint = true)
-@Api("Test API")
-@Component
-@Path("/api")
+@RestController
+@CrossOrigin
+@RequestMapping(value = "/api")
 public class ApiEndpoint {	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpoint.class);
-    
-    @ApiOperation("Ping request")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
-    @GET
-    @Path("/ping")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
+    @RequestMapping(value = "/ping", method = RequestMethod.GET)
+    public ResponseEntity<?> ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
     	LOGGER.debug("Server is running Fine Check DB credentials");
-        return Response.ok("{\"message\":\"pong\"}").build();
+      	ApiFormatter<String>  events= ServiceUtil.convertToSuccessResponse("ok");
+        return ResponseEntity.ok(events);
     }
 
     @ApiOperation("Home request")
