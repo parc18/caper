@@ -9,16 +9,22 @@ import java.util.List;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.protocol.HTTP;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.khelacademy.dao.UserDao;
+import com.khelacademy.dto.UserDto;
 import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
@@ -30,6 +36,7 @@ import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.GameCategory;
 import com.khelacademy.www.utils.UserUtils;
+
 
 @Component
 @Transactional
@@ -203,5 +210,53 @@ public class UserDaoImpl implements UserDao {
 		List<BasicUserDetails> results = query.list();
 		return results.get(0);
 		//return null;
+	}
+
+	@Override
+	public ResponseEntity<?> FirstTimeRegistration(UserDto userReq) throws Exception {
+		if(!StringUtils.isEmpty((userReq.getEmail()))) {
+			return signUpUsingEmail(userReq);
+		}else if(!StringUtils.isEmpty((userReq.getPhone()))) {
+			 return signUpUsingPhone(userReq);
+		}
+		MyErrors error = new MyErrors("User already registered, Please login");
+    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
+    	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+	}
+
+	private ResponseEntity<?> signUpUsingPhone(UserDto userReq) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private ResponseEntity<?> signUpUsingEmail(UserDto userReq) throws Exception {
+		if(userReq.getPassWord().equals(userReq.getPassWordVerify()) && UserUtils.isValid(userReq.getEmail())) {
+			Session session = this.sessionFactory.getCurrentSession();
+			String passWord = getEncryptedPass(userReq.getPassWord());
+			String hql = "FROM BasicUserDetails E WHERE E.email =:email";
+			Query<BasicUserDetails> query = session.createQuery(hql);
+			query.setString("email", userReq.getEmail());
+			List<BasicUserDetails> results = query.list();
+			if(results != null && results.size()> 0) {
+				MyErrors error = new MyErrors("User already registered, Please login");
+	        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
+	        	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+			}
+			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), UserUtils.getSaltString(5)+passWord);
+			
+			session.save(user);
+		}else {
+			MyErrors error = new MyErrors("Password mismatch or invalid email id");
+        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
+        	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+		}
+		ApiFormatter<String>  success= ServiceUtil.convertToSuccessResponse("You have been successfully registered");
+		return ResponseEntity.status(HttpStatus.OK).body(success);
+	}
+
+	private String getEncryptedPass(String passWord) {
+		 String md5Hex = DigestUtils
+			      .md5Hex(passWord).toUpperCase();
+		return md5Hex;
 	}
 }

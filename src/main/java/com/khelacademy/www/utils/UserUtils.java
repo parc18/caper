@@ -1,7 +1,13 @@
 package com.khelacademy.www.utils;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class UserUtils {
+	
+	@Value("${jwt.basicAuth}")
+	private static String basicAuthToken;
+	
     public static String getSaltString(Integer length) {
         String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder salt = new StringBuilder();
@@ -14,4 +20,14 @@ public class UserUtils {
         return saltStr;
 
     }
+    public static boolean validateBasicAuth(String auth) {
+    	return true;
+    	//return auth.equals(basicAuthToken) ? true : false;
+    }
+    
+    public static boolean isValid(String email) {
+        String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+        return email.matches(regex);
+     }
+    
 }

@@ -11,30 +11,64 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "basic_user_detail")
 public class BasicUserDetails {
-
+	public BasicUserDetails(String email, String passWord) {
+		this.email = email;
+		this.passWord = passWord;
+	}
+	BasicUserDetails(){}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	@Column
-	private String username;
-	@Column
+	@Column(name = "username")
+	private String userName;
+	@Column(name = "password")
 	@JsonIgnore
-	private String password;
-
-	public String getUsername() {
-		return username;
+	private String passWord;
+	@Column(name = "email", unique = true)
+	@JsonIgnore
+	private String email;
+	@Column(name = "phone")
+	@JsonIgnore
+	private String phone;
+	@Column(name = "status")
+	@JsonIgnore
+	private String stauts;
+	public String getStauts() {
+		return stauts;
 	}
-
-	public void setUsername(String username) {
-		this.username = username;
+	public void setStauts(String stauts) {
+		this.stauts = stauts;
 	}
-
-	public String getPassword() {
-		return password;
+	public long getId() {
+		return id;
 	}
-
-	public void setPassword(String password) {
-		this.password = password;
+	public void setId(long id) {
+		this.id = id;
 	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getPassWord() {
+		return passWord;
+	}
+	public void setPassWord(String passWord) {
+		this.passWord = passWord;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	
 
 }
