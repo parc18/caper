@@ -25,4 +25,6 @@ public interface UserDao {
 	BasicUserDetails getJwt(String username, String password);
 	
 	public ResponseEntity<?> FirstTimeRegistration(UserDto userReq) throws Exception;
+	
+	public ResponseEntity<?> userLogin(UserDto userReq) throws Exception;
 }

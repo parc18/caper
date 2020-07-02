@@ -19,13 +19,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.khelacademy.config.JwtTokenUtil;
 import com.khelacademy.dao.UserDao;
 import com.khelacademy.dto.UserDto;
 import com.khelacademy.model.BasicUserDetails;
+import com.khelacademy.model.JwtResponse;
+import com.khelacademy.service.JwtUserDetailsService;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.MyErrors;
@@ -45,7 +49,10 @@ public class UserDaoImpl implements UserDao {
     DBArrow SQLArrow = DBArrow.getArrow();
 	@Autowired
 	private SessionFactory sessionFactory;
-
+	@Autowired
+	private JwtUserDetailsService userDetailsService;
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
     @Override
     public Response getUserById(Integer userId) throws SQLException {
     	LOGGER.info("GET USER IS CALLED FOR ID: " + userId);
@@ -229,11 +236,13 @@ public class UserDaoImpl implements UserDao {
 		return null;
 	}
 
+	@SuppressWarnings("deprecation")
 	private ResponseEntity<?> signUpUsingEmail(UserDto userReq) throws Exception {
 		if(userReq.getPassWord().equals(userReq.getPassWordVerify()) && UserUtils.isValid(userReq.getEmail())) {
 			Session session = this.sessionFactory.getCurrentSession();
-			String passWord = getEncryptedPass(userReq.getPassWord());
+			String passWord = UserUtils.getEncryptedPass(userReq.getPassWord());
 			String hql = "FROM BasicUserDetails E WHERE E.email =:email";
+			@SuppressWarnings("unchecked")
 			Query<BasicUserDetails> query = session.createQuery(hql);
 			query.setString("email", userReq.getEmail());
 			List<BasicUserDetails> results = query.list();
@@ -242,7 +251,7 @@ public class UserDaoImpl implements UserDao {
 	        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
 	        	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 			}
-			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), UserUtils.getSaltString(5)+passWord);
+			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), passWord);
 			
 			session.save(user);
 		}else {
@@ -254,9 +263,34 @@ public class UserDaoImpl implements UserDao {
 		return ResponseEntity.status(HttpStatus.OK).body(success);
 	}
 
-	private String getEncryptedPass(String passWord) {
-		 String md5Hex = DigestUtils
-			      .md5Hex(passWord).toUpperCase();
-		return md5Hex;
+	@Override
+	public ResponseEntity<?> userLogin(UserDto userReq) throws Exception {
+		if(!StringUtils.isEmpty((userReq.getEmail()))) {
+			return loginUsingEmail(userReq);
+		}else if(!StringUtils.isEmpty((userReq.getPhone()))) {
+			 return signUpUsingPhone(userReq);
+		}
+		return null;
+	}
+	@SuppressWarnings("deprecation")
+	private ResponseEntity<?> loginUsingEmail(UserDto userReq) {
+		//final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+		Session session = this.sessionFactory.getCurrentSession();
+		String passWord = UserUtils.getEncryptedPass(userReq.getPassWord());
+		String hql = "FROM BasicUserDetails E WHERE E.email =:email and E.passWord = :pass";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("email", userReq.getEmail());
+		query.setString("pass", UserUtils.getEncryptedPass(userReq.getPassWord()));
+		List<BasicUserDetails> results = query.list();
+		if(results != null && results.size() == 1) {
+			final String token = jwtTokenUtil.generateToken(results.get(0));
+			ApiFormatter<String>  success= ServiceUtil.convertToSuccessResponse(token);
+			return ResponseEntity.status(HttpStatus.OK).body(success);
+			//return ResponseEntity.ok(new JwtResponse(token));
+		}
+		MyErrors error = new MyErrors("Invalid email/password");
+    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
+    	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 	}
 }

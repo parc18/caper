@@ -1,6 +1,7 @@
 package com.khelacademy.www.utils;
 import java.util.Random;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 public class UserUtils {
@@ -29,5 +30,9 @@ public class UserUtils {
         String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
         return email.matches(regex);
      }
-    
+	public static String getEncryptedPass(String passWord) {
+		 String md5Hex = DigestUtils
+			      .md5Hex(passWord).toUpperCase();
+		return md5Hex;
+	}
 }
