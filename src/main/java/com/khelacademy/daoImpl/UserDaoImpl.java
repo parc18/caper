@@ -39,7 +39,9 @@ import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.GameCategory;
+import com.khelacademy.www.utils.SMSService;
 import com.khelacademy.www.utils.UserUtils;
+import com.khelacademy.www.utils.userConstants;
 
 
 @Component
@@ -232,8 +234,28 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	private ResponseEntity<?> signUpUsingPhone(UserDto userReq) {
-		// TODO Auto-generated method stub
-		return null;
+		if(SMSService.verifyOTPV2(userReq.getSessionDetail(), userReq.getOtp(), userReq.getPhone())){
+			Session session = this.sessionFactory.getCurrentSession();
+			String hql = "FROM BasicUserDetails E WHERE E.phone =:phone";
+			@SuppressWarnings("unchecked")
+			Query<BasicUserDetails> query = session.createQuery(hql);
+			query.setString("phone", userReq.getPhone());
+			List<BasicUserDetails> results = query.list();
+			String token = null;
+			if(results != null && results.size() == 1) {
+				token = jwtTokenUtil.generateToken(results.get(0));
+			}else {
+				BasicUserDetails user = new BasicUserDetails(userReq.getPhone(), userConstants.USER_OTP_VERIFIED);
+				session.save(user);
+				token = jwtTokenUtil.generateToken(user);
+			}
+			ApiFormatter<String>  success= ServiceUtil.convertToSuccessResponse(token);
+			return ResponseEntity.status(HttpStatus.OK).body(success);
+		}else {
+			MyErrors error = new MyErrors("OTP mismatch");
+        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
+        	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -251,7 +273,9 @@ public class UserDaoImpl implements UserDao {
 	        	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 406);
 	        	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 			}
-			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), passWord);
+			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), passWord, userConstants.USER_SIGNUP_CAPTURED);
+			
+			//send email with otp to verify the code
 			
 			session.save(user);
 		}else {

@@ -15,7 +15,7 @@ import com.khelacademy.www.pojos.SMSResponse;
 
 public class SMSService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
-	final String OtpUri = "https://2factor.in/API/V1/b991d218-3b42-11e8-a895-0200cd936042/SMS/";
+	final static String OtpUri = "https://2factor.in/API/V1/b991d218-3b42-11e8-a895-0200cd936042/SMS/";
 	final String TransactionalUri = "https://2factor.in/API/V1/b991d218-3b42-11e8-a895-0200cd936042/ADDON_SERVICES/SEND/PSMS";
 	final String TransactionalBalUri = "http://2factor.in/API/V1/b991d218-3b42-11e8-a895-0200cd936042/ADDON_SERVICES/BAL/PROMOTIONAL_SMS";
 	final String OtpBal = "http://2factor.in/API/V1/b991d218-3b42-11e8-a895-0200cd936042/BAL/SMS";
@@ -118,6 +118,23 @@ public class SMSService {
 		}catch(Exception e){
 			LOGGER.error("ERROR in getting balance of with ERROR" +e.getMessage());
 			return "ERROR";
+		}
+	}
+	public static boolean verifyOTPV2(String SessionDetail, String OTP, String phone){
+		try{
+		    RestTemplate restTemplate = new RestTemplate();
+		    String result = restTemplate.getForObject(OtpUri+"VERIFY/"+SessionDetail+"/"+OTP, String.class);
+		    Gson g = new Gson(); 
+		    SMSResponse p = g.fromJson(result, SMSResponse.class);
+		    if(p.getStatus().equals("Success")){
+		    	return true;
+		    }else{
+		    	LOGGER.error("ERROR in verifying OTP of "+phone);
+		    }
+		    return false;
+		}catch(Exception e){
+			LOGGER.error("ERROR in verifying OTP of "+phone + "with ERROR" +e.getMessage());
+			return false;
 		}
 	}
 }

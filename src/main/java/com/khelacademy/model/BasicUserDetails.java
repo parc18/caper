@@ -17,11 +17,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @Table(name = "basic_user_detail")
 public class BasicUserDetails implements UserDetails{
-	public BasicUserDetails(String email, String passWord) {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	public BasicUserDetails(String email, String passWord, String status) {
 		this.email = email;
 		this.passWord = passWord;
+		this.status = status;
 	}
 	BasicUserDetails(){}
+	public BasicUserDetails(String phone2, String userOtpVerified) {
+		this.phone = phone2;
+		this.status = userOtpVerified;
+	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -38,12 +47,12 @@ public class BasicUserDetails implements UserDetails{
 	private String phone;
 	@Column(name = "status")
 	@JsonIgnore
-	private String stauts;
-	public String getStauts() {
-		return stauts;
+	private String status;
+	public String getstatus() {
+		return status;
 	}
-	public void setStauts(String stauts) {
-		this.stauts = stauts;
+	public void setStatus(String stauts) {
+		this.status = stauts;
 	}
 	public long getId() {
 		return id;

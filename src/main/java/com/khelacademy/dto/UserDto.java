@@ -13,6 +13,7 @@ public class UserDto implements Serializable{
 	private String passWordVerify;
 	private String otp;
 	private String phone;
+	private String sessionDetail; 
 	public String getUserName() {
 		return userName;
 	}
@@ -51,6 +52,12 @@ public class UserDto implements Serializable{
 	}
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+	public String getSessionDetail() {
+		return sessionDetail;
+	}
+	public void setSessionDetail(String sessionDetail) {
+		this.sessionDetail = sessionDetail;
 	}
 
 }
