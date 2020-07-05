@@ -27,4 +27,10 @@ public interface UserDao {
 	public ResponseEntity<?> FirstTimeRegistration(UserDto userReq) throws Exception;
 	
 	public ResponseEntity<?> userLogin(UserDto userReq) throws Exception;
+	
+	public ResponseEntity<?> userResetPassword(UserDto userReq) throws Exception;
+	
+	public ResponseEntity<?> userVerifyOtp(UserDto userReq) throws Exception;
+	
+	public ResponseEntity<?> sendEotp(UserDto userReq) throws Exception;
 }

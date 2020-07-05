@@ -48,6 +48,18 @@ public class BasicUserDetails implements UserDetails{
 	@Column(name = "status")
 	@JsonIgnore
 	private String status;
+	@Column(name = "otp")
+	@JsonIgnore
+	private Integer otp;
+	public Integer getOtp() {
+		return otp;
+	}
+	public void setOtp(Integer otp) {
+		this.otp = otp;
+	}
+	public String getStatus() {
+		return status;
+	}
 	public String getstatus() {
 		return status;
 	}

@@ -35,4 +35,8 @@ public class UserUtils {
 			      .md5Hex(passWord).toUpperCase();
 		return md5Hex;
 	}
+	public static Integer getRandomNumber(Integer x) {
+		Random rand = new Random();
+		return rand.nextInt(x);
+	}
 }

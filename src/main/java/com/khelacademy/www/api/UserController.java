@@ -43,4 +43,28 @@ public class UserController {
 			throw new Exception("INVALID_CREDENTIALS", new BadCredentialsException(auth));
 		}
 	}
+	@RequestMapping(value = "user/reset-password", method = RequestMethod.POST)
+	public ResponseEntity<?> userPasswordReset(@RequestBody UserDto userRequest, @RequestHeader("Authorization") String auth) throws Exception {
+		if(UserUtils.validateBasicAuth(auth)) {
+			return userDao.userLogin(userRequest);
+		}else {
+			throw new Exception("INVALID_CREDENTIALS", new BadCredentialsException(auth));
+		}
+	}
+	@RequestMapping(value = "user/verify-eotp", method = RequestMethod.POST)
+	public ResponseEntity<?> userVerificationViaEmailOtp(@RequestBody UserDto userRequest, @RequestHeader("Authorization") String auth) throws Exception {
+		if(UserUtils.validateBasicAuth(auth)) {
+			return userDao.userVerifyOtp(userRequest);
+		}else {
+			throw new Exception("INVALID_CREDENTIALS", new BadCredentialsException(auth));
+		}
+	}
+	@RequestMapping(value = "user/send-eotp", method = RequestMethod.POST)
+	public ResponseEntity<?> sendEotp(@RequestBody UserDto userRequest, @RequestHeader("Authorization") String auth) throws Exception {
+		if(UserUtils.validateBasicAuth(auth)) {
+			return userDao.userLogin(userRequest);
+		}else {
+			throw new Exception("INVALID_CREDENTIALS", new BadCredentialsException(auth));
+		}
+	}
 }
