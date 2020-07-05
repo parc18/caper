@@ -3,7 +3,9 @@ import java.util.Random;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserUtils {
 	
 	@Value("${jwt.basicAuth}")
@@ -22,8 +24,7 @@ public class UserUtils {
 
     }
     public static boolean validateBasicAuth(String auth) {
-    	return true;
-    	//return auth.equals(basicAuthToken) ? true : false;
+    	return auth.equals(basicAuthToken) ? true : false;
     }
     
     public static boolean isValid(String email) {
