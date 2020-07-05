@@ -1,14 +1,14 @@
 package com.khelacademy.www.utils;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserUtils {
-	
-	@Value("${jwt.basicAuth}")
+
 	private static String basicAuthToken;
 	
     public static String getSaltString(Integer length) {
@@ -24,6 +24,7 @@ public class UserUtils {
 
     }
     public static boolean validateBasicAuth(String auth) {
+    	basicAuthToken = loadProperties("jwt.basicAuth");
     	return auth.equals(basicAuthToken) ? true : false;
     }
     
@@ -40,4 +41,18 @@ public class UserUtils {
 		Random rand = new Random();
 		return rand.nextInt(x);
 	}
+ 	public static String loadProperties(String key){
+ 		try {
+ 			Properties configuration = new Properties();
+ 			InputStream inputStream = UserUtils.class
+ 					.getClassLoader()
+ 					.getResourceAsStream("application.properties");
+ 			configuration.load(inputStream);
+ 			inputStream.close();
+ 			return configuration.getProperty(key);
+ 		}catch (Exception e) {
+ 			e.printStackTrace();
+		}
+ 		return null;
+    }
 }
