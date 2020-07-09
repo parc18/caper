@@ -2,6 +2,8 @@ package com.khelacademy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 
 import javax.persistence.Column;
@@ -51,6 +53,16 @@ public class BasicUserDetails implements UserDetails{
 	@Column(name = "otp")
 	@JsonIgnore
 	private Integer otp;
+	@Column(name = "otp_expire")
+	@JsonIgnore
+	private Timestamp otpExpire;
+
+	public Timestamp getOtpExpire() {
+		return otpExpire;
+	}
+	public void setOtpExpire(Timestamp otpExpire) {
+		this.otpExpire = otpExpire;
+	}
 	public Integer getOtp() {
 		return otp;
 	}

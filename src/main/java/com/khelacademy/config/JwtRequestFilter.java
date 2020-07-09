@@ -1,11 +1,15 @@
 package com.khelacademy.config;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,12 +17,20 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.khelacademy.service.JwtUserDetailsService;
+import com.khelacademy.www.pojos.ApiFormatter;
+import com.khelacademy.www.pojos.MyErrors;
+import com.khelacademy.www.services.ServiceUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
+	private static final int MAX_REQUESTS_PER_SECOND = 1;
 	@Autowired
 	private JwtUserDetailsService jwtUserDetailsService;
 	@Autowired
@@ -27,6 +39,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		if (isMaximumRequestsPerSecondExceeded(request)) {
+			CustomResponse(HttpStatus.TOO_MANY_REQUESTS, response);
+			return;
+		}
 		final String requestTokenHeader = request.getHeader("Authorization");
 		String username = null;
 		String jwtToken = null;
@@ -61,5 +77,57 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			}
 		}
 		chain.doFilter(request, response);
+	}
+
+	private boolean isMaximumRequestsPerSecondExceeded(HttpServletRequest httpServletRequest) {
+		String clientIpAddress = getClientIP((HttpServletRequest) httpServletRequest);
+		int requests = 0;
+		try {
+			requests = requestCountsPerIpAddress.get(clientIpAddress);
+			if (requests >= MAX_REQUESTS_PER_SECOND && (httpServletRequest.getRequestURL().toString().contains("user/signup") || httpServletRequest.getRequestURL().toString().contains("user/login")) )
+				return true;
+		} catch (Exception e) {
+			requests = 0;
+		}
+
+		if (httpServletRequest.getRequestURL().toString().contains("user/signup") || httpServletRequest.getRequestURL().toString().contains("user/login")) {
+			requests++;
+			requestCountsPerIpAddress.put(clientIpAddress, requests);
+		}
+		return false;
+	}
+	public String getClientIP(HttpServletRequest request) {
+		String xfHeader = request.getHeader("X-Forwarded-For");
+		if (xfHeader == null) {
+			return request.getRemoteAddr();
+		}
+		return xfHeader.split(",")[0];
+	}
+	private LoadingCache<String, Integer> requestCountsPerIpAddress;
+	public void CustomResponse(HttpStatus status, HttpServletResponse response) {
+
+		response.setStatus(status.value());
+		response.setContentType("application/json");
+		MyErrors error = new MyErrors(status.toString());
+		ApiFormatter<MyErrors> exp = ServiceUtil.convertToFailureResponse(error, "true", 500);
+		ObjectMapper mapper = new ObjectMapper();
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.print(mapper.writeValueAsString(exp));
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public JwtRequestFilter() {
+		super();
+		requestCountsPerIpAddress = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS)
+				.build(new CacheLoader<String, Integer>() {
+					public Integer load(String key) {
+						return 0;
+					}
+				});
 	}
 }

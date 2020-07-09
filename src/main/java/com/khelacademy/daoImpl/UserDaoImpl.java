@@ -1,9 +1,12 @@
 package com.khelacademy.daoImpl;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.ws.rs.core.GenericEntity;
@@ -295,7 +298,10 @@ public class UserDaoImpl implements UserDao {
 					userConstants.USER_SIGNUP_CAPTURED);
 			try {
 				Integer otp = EmailService.sendEmailOTP("null", userReq.getEmail());
+				//user.setOtp(111111);
 				user.setOtp(otp);
+				long timeNow = Calendar.getInstance().getTimeInMillis() + 600000;
+				user.setOtpExpire(new Timestamp(timeNow));
 			} catch (Exception e) {
 				LOGGER.error("Not able to send otp email", e);
 				user.setOtp(null);
@@ -371,17 +377,21 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public ResponseEntity<?> userVerifyOtp(UserDto userReq) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
-		String hql = "FROM BasicUserDetails E WHERE E.email =:email and E.otp = :otp";
+		String hql = "FROM BasicUserDetails E WHERE E.email =:email and E.otp = :otp and E.status = : status";
 		@SuppressWarnings("unchecked")
 		Query<BasicUserDetails> query = session.createQuery(hql);
 		query.setString("email", userReq.getEmail());
 		query.setInteger("otp", Integer.parseInt(userReq.getOtp()));
+		query.setString("status", userConstants.USER_SIGNUP_CAPTURED);
 		List<BasicUserDetails> results = query.list();
 		if (results != null && results.size() == 1) {
-			results.get(0).setStatus(userConstants.USER_SIGNUP_VERIFIED);
-			session.update(results.get(0));
-			ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
-			return ResponseEntity.status(HttpStatus.OK).body(success);
+			long timeNow = Calendar.getInstance().getTimeInMillis();
+			if(results.get(0).getOtpExpire().after(new Timestamp(timeNow))) {
+				results.get(0).setStatus(userConstants.USER_SIGNUP_VERIFIED);
+				session.update(results.get(0));
+				ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+				return ResponseEntity.status(HttpStatus.OK).body(success);
+			}
 		}
 		MyErrors error = new MyErrors("INTERNAL SERVER ERROR");
 		ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 500);
