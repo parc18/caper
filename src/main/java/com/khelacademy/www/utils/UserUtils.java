@@ -1,4 +1,4 @@
-package com.khelacademy.www.utils;
+	package com.khelacademy.www.utils;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Random;
@@ -24,6 +24,7 @@ public class UserUtils {
 
     }
     public static boolean validateBasicAuth(String auth) {
+    	//return true;
     	basicAuthToken = loadProperties("jwt.basicAuth");
     	return auth.equals(basicAuthToken) ? true : false;
     }

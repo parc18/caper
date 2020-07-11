@@ -30,7 +30,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-	private static final int MAX_REQUESTS_PER_SECOND = 1;
+	private static final int MAX_REQUESTS_PER_SECOND = 3;
 	@Autowired
 	private JwtUserDetailsService jwtUserDetailsService;
 	@Autowired
