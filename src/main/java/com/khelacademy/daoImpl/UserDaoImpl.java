@@ -1,5 +1,6 @@
 package com.khelacademy.daoImpl;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,6 +31,7 @@ import org.springframework.util.StringUtils;
 import com.khelacademy.config.JwtTokenUtil;
 import com.khelacademy.dao.UserDao;
 import com.khelacademy.dto.UserDto;
+import com.khelacademy.model.AdvancedUserDetail;
 import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.model.JwtResponse;
 import com.khelacademy.service.JwtUserDetailsService;
@@ -45,7 +47,7 @@ import com.khelacademy.www.utils.EmailService;
 import com.khelacademy.www.utils.GameCategory;
 import com.khelacademy.www.utils.SMSService;
 import com.khelacademy.www.utils.UserUtils;
-import com.khelacademy.www.utils.userConstants;
+import com.khelacademy.www.utils.UserConstants;
 
 @Component
 @Transactional
@@ -266,7 +268,7 @@ public class UserDaoImpl implements UserDao {
 			if (results != null && results.size() == 1) {
 				token = jwtTokenUtil.generateToken(results.get(0));
 			} else {
-				BasicUserDetails user = new BasicUserDetails(userReq.getPhone(), userConstants.USER_OTP_VERIFIED);
+				BasicUserDetails user = new BasicUserDetails(userReq.getPhone(), UserConstants.USER_OTP_VERIFIED);
 				session.save(user);
 				token = jwtTokenUtil.generateToken(user);
 			}
@@ -295,9 +297,10 @@ public class UserDaoImpl implements UserDao {
 				return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 			}
 			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), passWord,
-					userConstants.USER_SIGNUP_CAPTURED);
+					UserConstants.USER_SIGNUP_CAPTURED);
 			try {
 				Integer otp = EmailService.sendEmailOTP("null", userReq.getEmail());
+
 				//user.setOtp(111111);
 				user.setOtp(otp);
 				long timeNow = Calendar.getInstance().getTimeInMillis() + 600000;
@@ -362,7 +365,7 @@ public class UserDaoImpl implements UserDao {
 			query.setInteger("otp", Integer.parseInt(userReq.getOtp()));
 			List<BasicUserDetails> results = query.list();
 			if (results != null && results.size() == 1) {
-				results.get(0).setStatus(userConstants.USER_SIGNUP_VERIFIED);
+				results.get(0).setStatus(UserConstants.USER_SIGNUP_VERIFIED);
 				results.get(0).setPassWord(userReq.getPassWord());
 				session.update(results.get(0));
 			}
@@ -377,18 +380,23 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public ResponseEntity<?> userVerifyOtp(UserDto userReq) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
-		String hql = "FROM BasicUserDetails E WHERE E.email =:email and E.otp = :otp and E.status = : status";
+		String hql = "FROM BasicUserDetails E WHERE E.email =:email and E.otp = :otp and E.status = :status";
 		@SuppressWarnings("unchecked")
 		Query<BasicUserDetails> query = session.createQuery(hql);
 		query.setString("email", userReq.getEmail());
 		query.setInteger("otp", Integer.parseInt(userReq.getOtp()));
-		query.setString("status", userConstants.USER_SIGNUP_CAPTURED);
+		query.setString("status", UserConstants.USER_SIGNUP_CAPTURED);
 		List<BasicUserDetails> results = query.list();
 		if (results != null && results.size() == 1) {
 			long timeNow = Calendar.getInstance().getTimeInMillis();
 			if(results.get(0).getOtpExpire().after(new Timestamp(timeNow))) {
-				results.get(0).setStatus(userConstants.USER_SIGNUP_VERIFIED);
+				results.get(0).setStatus(UserConstants.USER_SIGNUP_VERIFIED);
 				session.update(results.get(0));
+				AdvancedUserDetail advancedUserDetails = new AdvancedUserDetail();
+				advancedUserDetails.setUserId(results.get(0).getId());
+				advancedUserDetails.setEmail(results.get(0).getEmail());
+				advancedUserDetails.setStatus(UserConstants.USER_SIGNUP_VERIFIED);
+				session.save(advancedUserDetails);
 				ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
 				return ResponseEntity.status(HttpStatus.OK).body(success);
 			}
