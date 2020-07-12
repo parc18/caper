@@ -3,9 +3,13 @@ package com.khelacademy.www.api;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +28,8 @@ import com.khelacademy.www.utils.UserUtils;
 @RestController
 @CrossOrigin
 public class UserController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
 	@Autowired
 	UserDao userDao;
 
@@ -67,4 +73,20 @@ public class UserController {
 			throw new Exception("INVALID_CREDENTIALS", new BadCredentialsException(auth));
 		}
 	}
+	@RequestMapping(value = "user/update-email", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateEmail(@RequestBody UserDto userRequest, @RequestHeader("Authorization") String auth) throws Exception {
+		SecurityContext context = SecurityContextHolder.getContext();
+		String userName = context.getAuthentication().getName();
+		userRequest.setUserName(userName);
+		return userDao.updateEmail(userRequest);
+	}
+	
+	@RequestMapping(value = "user/update-email-verification", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateEmailVerification(@RequestBody UserDto userRequest, @RequestHeader("Authorization") String auth) throws Exception {
+		SecurityContext context = SecurityContextHolder.getContext();
+		String userName = context.getAuthentication().getName();
+		userRequest.setUserName(userName);
+		return userDao.userVerifyEmailOtpAfterUpdate(userRequest);
+	}
+	
 }

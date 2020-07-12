@@ -1,7 +1,5 @@
 package com.khelacademy.daoImpl;
 
-import java.io.Serializable;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,17 +11,16 @@ import java.util.List;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.protocol.HTTP;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,7 +30,7 @@ import com.khelacademy.dao.UserDao;
 import com.khelacademy.dto.UserDto;
 import com.khelacademy.model.AdvancedUserDetail;
 import com.khelacademy.model.BasicUserDetails;
-import com.khelacademy.model.JwtResponse;
+import com.khelacademy.model.UserUpdate;
 import com.khelacademy.service.JwtUserDetailsService;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
@@ -46,8 +43,8 @@ import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.EmailService;
 import com.khelacademy.www.utils.GameCategory;
 import com.khelacademy.www.utils.SMSService;
-import com.khelacademy.www.utils.UserUtils;
 import com.khelacademy.www.utils.UserConstants;
+import com.khelacademy.www.utils.UserUtils;
 
 @Component
 @Transactional
@@ -96,7 +93,9 @@ public class UserDaoImpl implements UserDao {
 			ApiFormatter<User> userResponse = ServiceUtil.convertToSuccessResponse(allUser.get(0));
 			return Response.ok(new GenericEntity<ApiFormatter<User>>(userResponse) {
 			}).build();
-		} else {
+		} else
+
+		{
 			LOGGER.debug("TOTAL USER RETRIEVED: " + allUser.size());
 			ApiFormatter<List<User>> userResponse = ServiceUtil.convertToSuccessResponse(allUser);
 			return Response.ok(new GenericEntity<ApiFormatter<List<User>>>(userResponse) {
@@ -257,7 +256,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	private ResponseEntity<?> signUpUsingPhone(UserDto userReq) {
-		 if(SMSService.verifyOTPV2(userReq.getSessionDetail(), userReq.getOtp(), userReq.getPhone())){
+		if (SMSService.verifyOTPV2(userReq.getSessionDetail(), userReq.getOtp(), userReq.getPhone())) {
 			Session session = this.sessionFactory.getCurrentSession();
 			String hql = "FROM BasicUserDetails E WHERE E.phone =:phone";
 			@SuppressWarnings("unchecked")
@@ -269,6 +268,7 @@ public class UserDaoImpl implements UserDao {
 				token = jwtTokenUtil.generateToken(results.get(0));
 			} else {
 				BasicUserDetails user = new BasicUserDetails(userReq.getPhone(), UserConstants.USER_OTP_VERIFIED);
+				user.setPhoneVerified(1);
 				session.save(user);
 				token = jwtTokenUtil.generateToken(user);
 			}
@@ -300,9 +300,10 @@ public class UserDaoImpl implements UserDao {
 					UserConstants.USER_SIGNUP_CAPTURED);
 			try {
 				Integer otp = EmailService.sendEmailOTP("null", userReq.getEmail());
-
-				//user.setOtp(111111);
-				user.setOtp(otp);
+				user.setOtp(111111);
+				// user.setOtp(otp);
+				user.setEmailVerified(0);
+				user.setPhoneVerified(0);
 				long timeNow = Calendar.getInstance().getTimeInMillis() + 600000;
 				user.setOtpExpire(new Timestamp(timeNow));
 			} catch (Exception e) {
@@ -389,13 +390,17 @@ public class UserDaoImpl implements UserDao {
 		List<BasicUserDetails> results = query.list();
 		if (results != null && results.size() == 1) {
 			long timeNow = Calendar.getInstance().getTimeInMillis();
-			if(results.get(0).getOtpExpire().after(new Timestamp(timeNow))) {
+			if (results.get(0).getOtpExpire().after(new Timestamp(timeNow))) {
+				String userName = getUserName();
 				results.get(0).setStatus(UserConstants.USER_SIGNUP_VERIFIED);
+				results.get(0).setUserName(userName);
+				results.get(0).setEmailVerified(1);
 				session.update(results.get(0));
 				AdvancedUserDetail advancedUserDetails = new AdvancedUserDetail();
 				advancedUserDetails.setUserId(results.get(0).getId());
 				advancedUserDetails.setEmail(results.get(0).getEmail());
 				advancedUserDetails.setStatus(UserConstants.USER_SIGNUP_VERIFIED);
+				advancedUserDetails.setUserName(userName);
 				session.save(advancedUserDetails);
 				ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
 				return ResponseEntity.status(HttpStatus.OK).body(success);
@@ -404,6 +409,17 @@ public class UserDaoImpl implements UserDao {
 		MyErrors error = new MyErrors("INTERNAL SERVER ERROR");
 		ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 500);
 		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+	}
+
+	private String getUserName() {
+		Session session = this.sessionFactory.getCurrentSession();
+		Criteria c = session.createCriteria(BasicUserDetails.class);
+		c.addOrder(Order.desc("id"));
+		c.setMaxResults(2);
+		List<BasicUserDetails> users = (List<BasicUserDetails>) c.list();
+		if (users.size() >= 2)
+			return UserUtils.getAlphaNumericNextUserNameForGivenLastUserName(users.get(1).getUserName());
+		return "A";
 	}
 
 	@Override
@@ -423,5 +439,115 @@ public class UserDaoImpl implements UserDao {
 		}
 		ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("You have been successfully registered");
 		return ResponseEntity.status(HttpStatus.OK).body(success);
+	}
+
+	@Override
+	public ResponseEntity<?> updateEmail(UserDto userReq) throws Exception {
+		if (userReq.getEmail() != null) {
+			Session session = this.sessionFactory.getCurrentSession();
+			String hql = "FROM BasicUserDetails E WHERE E.userName =:userName";
+			@SuppressWarnings("unchecked")
+			Query<BasicUserDetails> query = session.createQuery(hql);
+			query.setString("userName", userReq.getUserName());
+			List<BasicUserDetails> results = query.list();
+			if (results != null && results.size() == 1) {
+				Integer otp = EmailService.sendEmailOTP("null", userReq.getEmail());
+				if(otp !=null)
+					results.get(0).setOtp(otp);
+				else 
+					results.get(0).setOtp(111111);
+				results.get(0).setEmail(userReq.getEmail());
+				results.get(0).setEmailVerified(0);
+				session.update(results.get(0));
+
+				hql = "FROM UserUpdate E WHERE E.userName =:userName and E.email =:email";
+				@SuppressWarnings("unchecked")
+				Query<UserUpdate> query1 = session.createQuery(hql);
+				query1.setString("userName", userReq.getUserName());
+				query1.setString("email", userReq.getEmail());
+				List<UserUpdate> results1 = query1.list();
+				if (results1 == null || results1.size() == 0) {
+					UserUpdate userUpdate = new UserUpdate(results.get(0).getUserName(), results.get(0).getId(),
+							results.get(0).getEmail(), UserConstants.NOT_VERIFIED);
+					session.save(userUpdate);
+				}
+				ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+				return ResponseEntity.status(HttpStatus.OK).body(success);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String getUserNameByPhone(String phone) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.phone =:phone";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("phone", phone);
+		List<BasicUserDetails> results = query.list();
+		if (results != null && results.size() == 1) {
+			return results.get(0).getUserName();
+		}
+		return null;
+	}
+
+	@Override
+	public String getUserNameByEmail(String email) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.email =:email";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("email", email);
+		List<BasicUserDetails> results = query.list();
+		if (results != null && results.size() == 1) {
+			return results.get(0).getUserName();
+		}
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<?> userVerifyEmailOtpAfterUpdate(UserDto userReq) {
+
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.email =:email and E.otp = :otp";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("email", userReq.getEmail());
+		query.setInteger("otp", Integer.parseInt(userReq.getOtp()));
+		List<BasicUserDetails> results = query.list();
+		if (results != null && results.size() == 1) {
+			long timeNow = Calendar.getInstance().getTimeInMillis();
+			if (results.get(0).getOtpExpire().after(new Timestamp(timeNow))) {
+				results.get(0).setStatus(UserConstants.USER_EMAIL_UPDATE_VERIFIED);
+				results.get(0).setEmailVerified(1);
+				session.update(results.get(0));
+
+				hql = "FROM AdvancedUserDetail E WHERE E.userName =:username";
+				Query<AdvancedUserDetail> query1 = session.createQuery(hql);
+				query1.setString("username", userReq.getUserName());
+				List<AdvancedUserDetail> results1 = query1.list();
+				results1.get(0).setEmail(results.get(0).getEmail());
+				results1.get(0).setStatus(UserConstants.USER_EMAIL_UPDATE_VERIFIED);
+				session.update(results1.get(0));
+				// update table
+				hql = "FROM UserUpdate E WHERE E.userName =:username and E.email =:email and status =:status";
+				Query<UserUpdate> query2 = session.createQuery(hql);
+				query2.setString("username", userReq.getUserName());
+				query2.setString("email", userReq.getEmail());
+				query2.setString("status", UserConstants.NOT_VERIFIED);
+				List<UserUpdate> results2 = query2.list();
+				if (results2 != null && results2.size() == 1) {
+					results2.get(0).setStatus(UserConstants.UPDATE_VERIFIED);
+					session.update(results2.get(0));
+				}
+				ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+				return ResponseEntity.status(HttpStatus.OK).body(success);
+			}
+		}
+		MyErrors error = new MyErrors("INTERNAL SERVER ERROR");
+		ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 500);
+		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+
 	}
 }

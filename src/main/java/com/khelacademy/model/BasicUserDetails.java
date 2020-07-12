@@ -19,6 +19,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @Table(name = "basic_user_detail")
 public class BasicUserDetails implements UserDetails{
+	public Integer getEmailVerified() {
+		return emailVerified;
+	}
+	public void setEmailVerified(Integer emailVerified) {
+		this.emailVerified = emailVerified;
+	}
+	public Integer getPhoneVerified() {
+		return phoneVerified;
+	}
+	public void setPhoneVerified(Integer phoneVerified) {
+		this.phoneVerified = phoneVerified;
+	}
 	/**
 	 * 
 	 */
@@ -56,6 +68,14 @@ public class BasicUserDetails implements UserDetails{
 	@Column(name = "otp_expire")
 	@JsonIgnore
 	private Timestamp otpExpire;
+	
+	@Column(name = "email_verified")
+	@JsonIgnore
+	private Integer emailVerified;
+
+	@Column(name = "phone_verified")
+	@JsonIgnore
+	private Integer  phoneVerified;
 
 	public Timestamp getOtpExpire() {
 		return otpExpire;
@@ -121,7 +141,7 @@ public class BasicUserDetails implements UserDetails{
 	@Override
 	public String getUsername() {
 		// TODO Auto-generated method stub
-		return this.email == null ? this.phone : this.email;
+		return this.userName;
 	}
 	@Override
 	public boolean isAccountNonExpired() {

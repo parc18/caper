@@ -10,6 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.khelacademy.dao.UserDao;
+import com.khelacademy.www.utils.UserUtils;
+
 //import com.khelacademy.dao.BasicUserDetailRespository;
 //import com.khelacademy.dao.UserDao;
 //import com.khelacademy.dto.UserDto;
@@ -19,20 +22,21 @@ import org.springframework.stereotype.Service;
 @Component
 public class JwtUserDetailsService implements UserDetailsService {
 
-	//@Autowired
-	//private BasicUserDetailRespository basicUserDetailRespository;
+	@Autowired
+	private UserDao userDao;
 
 	@Autowired
 	private PasswordEncoder bcryptEncoder;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		if ("javainuse".equals(username)) {
-			return new User("javainuse", "$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6",
-					new ArrayList<>());
-		} else {
-			throw new UsernameNotFoundException("User not found with username: " + username);
-		}
+		return new User(username, "",
+				new ArrayList<>());
+	}
+
+	private UserDetails myUser(String username) {
+		return new User(username, "",
+				new ArrayList<>());
 	}
 	
 //	public BasicUserDetails save(UserDto user) {

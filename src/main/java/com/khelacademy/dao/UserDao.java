@@ -33,4 +33,12 @@ public interface UserDao {
 	public ResponseEntity<?> userVerifyOtp(UserDto userReq) throws Exception;
 	
 	public ResponseEntity<?> sendEotp(UserDto userReq) throws Exception;
+	
+	public ResponseEntity<?> updateEmail(UserDto userReq) throws Exception;
+
+	public String getUserNameByPhone(String phone);
+
+	public String getUserNameByEmail(String email);
+
+	ResponseEntity<?> userVerifyEmailOtpAfterUpdate(UserDto userRequest);
 }
