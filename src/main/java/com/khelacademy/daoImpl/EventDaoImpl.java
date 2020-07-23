@@ -15,6 +15,8 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.khelacademy.dao.EventDao;
@@ -58,7 +60,7 @@ public class EventDaoImpl implements EventDao{
         }).build();
     }
 
-    public Response getEventByCityId(Integer cityId, Integer gameId) {
+    public ResponseEntity<?> getEventByCityId(Integer cityId, Integer gameId) {
 
     	PreparedStatement statement=null;
     	try {
@@ -84,12 +86,12 @@ public class EventDaoImpl implements EventDao{
         	while (rs.next()) {
         	Event event = new Event();
             event.setDate(rs.getDate("eventdate"));
-            JedisPool jedisPool = RedisBullet.getPool();
-        	Jedis jedis = jedisPool.getResource();
+            //JedisPool jedisPool = RedisBullet.getPool();
+        	//Jedis jedis = jedisPool.getResource();
         	//jedis.get(Integer.toString(rs.getInt("event_id")));
-            event.setDescription(jedis.get(Integer.toString(rs.getInt("event_id"))));
-            jedis.close();
-            jedisPool.close();
+            //event.setDescription(jedis.get(Integer.toString(rs.getInt("event_id"))));
+            //jedis.close();
+            //jedisPool.close();
             event.setEventId(rs.getInt("event_id"));
             event.setEventVenue(rs.getString("venue"));
             event.setEventType(rs.getInt("event_type"));
@@ -109,12 +111,14 @@ public class EventDaoImpl implements EventDao{
         	LOGGER.error("ERROR IN GETTING EVENTS DETAILE FOR CITY: " + cityId);
         	MyErrors error = new MyErrors(e.getMessage());
         	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
-            return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
-            }).build();
+    		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+        	//return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+            //}).build();
         }
     	ApiFormatter<Map<Integer,Event>>  events= ServiceUtil.convertToSuccessResponse(allEvents);
-        return Response.ok(new GenericEntity<ApiFormatter<Map<Integer, Event>>>(events) {
-        }).build();
+    	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(events);
+        //return Response.ok(new GenericEntity<ApiFormatter<Map<Integer, Event>>>(events) {
+        //}).build();
     }
 
 	@Override

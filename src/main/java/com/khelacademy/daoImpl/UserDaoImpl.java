@@ -234,7 +234,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public BasicUserDetails getJwt(String username, String password) {
 		Session session = this.sessionFactory.getCurrentSession();
-		String hql = "FROM BasicUserDetails E WHERE E.username =:uname";
+		String hql = "FROM BasicUserDetails E WHERE E.userName =:uname";
 		@SuppressWarnings("unchecked")
 		Query<BasicUserDetails> query = session.createQuery(hql);
 		query.setString("uname", username);

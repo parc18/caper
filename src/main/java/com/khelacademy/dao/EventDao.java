@@ -2,9 +2,11 @@ package com.khelacademy.dao;
 
 import javax.ws.rs.core.Response;
 
+import org.springframework.http.ResponseEntity;
+
 public interface EventDao {
     Response getAllEvents();
-    Response getEventByCityId(Integer city, Integer gameId);
+    ResponseEntity<?> getEventByCityId(Integer city, Integer gameId);
     Response getEventPrice(Integer eventId);
 
 }

@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.instamojo.wrapper.api.Instamojo;
@@ -129,12 +130,8 @@ public class ApiEndpoint {
     	return user.getUserById(userId);
     }
 
-    @ApiOperation("get event request")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
-    @GET
-    @Path("/event")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response events(@QueryParam("city_id") Integer cityId, @QueryParam("game_id") Integer gameId) throws SQLException {
+    @RequestMapping(value = "/event", method = RequestMethod.GET)
+    public ResponseEntity<?> events(@RequestParam("city_id") Integer cityId, @RequestParam("game_id") Integer gameId) throws SQLException {
         EventDao event = new EventDaoImpl();
         return event.getEventByCityId(cityId, gameId);
     }
