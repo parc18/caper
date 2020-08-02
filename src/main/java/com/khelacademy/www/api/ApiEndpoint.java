@@ -136,12 +136,8 @@ public class ApiEndpoint {
         return event.getEventByCityId(cityId, gameId);
     }
     
-    @ApiOperation("get event Prices request")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
-    @GET
-    @Path("/event_prices")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response eventsPrices(@QueryParam("event_id") Integer eventId) throws SQLException {
+    @RequestMapping(value = "/event_prices", method = RequestMethod.GET)
+    public ResponseEntity<?> eventsPrices(@RequestParam("event_id") Integer eventId) throws SQLException {
         EventDao event = new EventDaoImpl();
         return event.getEventPrice(eventId);
     }

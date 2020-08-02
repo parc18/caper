@@ -122,7 +122,7 @@ public class EventDaoImpl implements EventDao{
     }
 
 	@Override
-	public Response getEventPrice(Integer eventId) {
+	public ResponseEntity<?> getEventPrice(Integer eventId) {
     	PreparedStatement statement=null;
     	EventPriceResponse eventPrices = new EventPriceResponse();
     	Map<Integer, List<EventPrice>> groupByCategotyMap = new HashMap<Integer, List<EventPrice>>();
@@ -151,16 +151,21 @@ public class EventDaoImpl implements EventDao{
             	LOGGER.error("ERROR IN GETTING EVENT'S PRICE DETAILE FOR EVENTID: " + eventId);
             	MyErrors error = new MyErrors(e.getMessage());
             	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
-                return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
-                }).build();
+            	//ApiFormatter<Map<Integer,Event>>  events= ServiceUtil.convertToSuccessResponse(allEvents);
+            	return ResponseEntity.status(HttpStatus.OK).body(err);
+//            	
+//            	return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+//                }).build();
             }
 		} catch (SQLException e1) {
 			LOGGER.error("ERROR IN PREPARING STATEMENT FOR EVENT BASED PRICE FOR THE EVENTID : " + eventId);
 		}
     	eventPrices.setPriceDetails(groupByCategotyMap);
     	ApiFormatter<EventPriceResponse>  events= ServiceUtil.convertToSuccessResponse(eventPrices);
-        return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {
-        }).build();
+    	
+    	return ResponseEntity.status(HttpStatus.OK).body(events);
+    	//        return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {
+//        }).build();
 	}
 
 }
