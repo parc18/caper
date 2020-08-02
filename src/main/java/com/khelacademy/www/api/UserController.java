@@ -1,5 +1,7 @@
 package com.khelacademy.www.api;
 
+import java.sql.SQLException;
+
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
@@ -16,8 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.khelacademy.dao.EventDao;
 import com.khelacademy.dao.UserDao;
+import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.dto.UserDto;
 import com.khelacademy.service.JwtUserDetailsService;
 import com.khelacademy.www.pojos.ApiFormatter;
@@ -88,5 +94,9 @@ public class UserController {
 		userRequest.setUserName(userName);
 		return userDao.userVerifyEmailOtpAfterUpdate(userRequest);
 	}
-	
+    @RequestMapping(value = "/event", method = RequestMethod.GET)
+    public ResponseEntity<?> events(@RequestParam("city_id") Integer cityId, @RequestParam("game_id") Integer gameId) throws SQLException {
+        EventDao event = new EventDaoImpl();
+        return event.getEventByCityId(cityId, gameId);
+    }
 }

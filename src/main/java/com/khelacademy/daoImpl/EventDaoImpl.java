@@ -116,7 +116,7 @@ public class EventDaoImpl implements EventDao{
             //}).build();
         }
     	ApiFormatter<Map<Integer,Event>>  events= ServiceUtil.convertToSuccessResponse(allEvents);
-    	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(events);
+    	return ResponseEntity.status(HttpStatus.OK).body(events);
         //return Response.ok(new GenericEntity<ApiFormatter<Map<Integer, Event>>>(events) {
         //}).build();
     }
