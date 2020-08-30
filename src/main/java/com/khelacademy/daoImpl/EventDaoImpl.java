@@ -49,8 +49,8 @@ public class EventDaoImpl implements EventDao{
         event.setEventType(1);
         event.setCity("Bangalore");
         event.setEventName("Badminton");
-        event.setOrganizers(new String[] {"LODHA Group", "DOFF"});
-        event.setSponsers(new String[] {"RIL", "TATA Group"});
+        event.setOrganizers(new String[] {"LODHA3 Group", "DOFFx"});
+        event.setSponsers(new String[] {"RIL1", "TATA1 Group"});
         event.setPrice(999);
         List<Event> lst = new ArrayList<Event>();
         lst.add(event);
@@ -162,6 +162,56 @@ public class EventDaoImpl implements EventDao{
 		}
     	eventPrices.setPriceDetails(groupByCategotyMap);
     	ApiFormatter<EventPriceResponse>  events= ServiceUtil.convertToSuccessResponse(eventPrices);
+    	
+    	return ResponseEntity.status(HttpStatus.OK).body(events);
+    	//        return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {
+//        }).build();
+	}
+
+	@Override
+	public ResponseEntity<?> getEventDetailsById(Integer eventId) {
+    	PreparedStatement statement=null;
+    	Event event = new Event();
+    	try {
+            if(eventId != null){
+            	statement = SQLArrow.getPreparedStatement("SELECT  * from event where event_id=?");
+            	statement.setInt(1, eventId);
+            }else{
+            	
+            }
+            try (ResultSet rs = SQLArrow.fire(statement)) {
+            	while (rs.next()) {
+            		EventPrice prices = new EventPrice();
+            		event.setEventId(rs.getInt("event_id"));
+            		event.setCity(rs.getString("event_city_id"));
+            		event.setDate(rs.getDate("eventdate"));
+            		event.setDescription(rs.getString("description"));
+            		event.setEventImgUrl(rs.getString("img_url"));
+            		event.setEventName(rs.getString("event_name"));
+            		event.setEventType(rs.getInt("event_type"));
+            		event.setEventVenue(rs.getString("venue"));
+            		event.setOrganizers(new String[] {});
+            		event.setPhone(rs.getString("phone"));
+            		event.setPrice(rs.getInt("start_price"));
+            		event.setPrices(new HashMap <Integer, Integer>());
+            		event.setSponsers(new String[] {});
+            		event.setStatus(rs.getInt("status"));
+            		event.setTimings(rs.getString("timings"));
+            	}
+            }catch(Exception e){
+            	LOGGER.error("ERROR IN GETTING EVENT'S PRICE DETAILE FOR EVENTID: " + eventId);
+            	MyErrors error = new MyErrors(e.getMessage());
+            	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+            	//ApiFormatter<Map<Integer,Event>>  events= ServiceUtil.convertToSuccessResponse(allEvents);
+            	return ResponseEntity.status(HttpStatus.OK).body(err);
+//            	
+//            	return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+//                }).build();
+            }
+		} catch (SQLException e1) {
+			LOGGER.error("ERROR IN PREPARING STATEMENT FOR EVENT BASED PRICE FOR THE EVENTID : " + eventId);
+		}
+    	ApiFormatter<Event>  events= ServiceUtil.convertToSuccessResponse(event);
     	
     	return ResponseEntity.status(HttpStatus.OK).body(events);
     	//        return Response.ok(new GenericEntity<ApiFormatter<EventPriceResponse>>(events) {

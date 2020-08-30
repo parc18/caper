@@ -136,6 +136,11 @@ public class ApiEndpoint {
         return event.getEventByCityId(cityId, gameId);
     }
     
+    @RequestMapping(value = "/event_by_id", method = RequestMethod.GET)
+    public ResponseEntity<?> eventById(@RequestParam("event_id") Integer eventId) throws SQLException {
+        EventDao event = new EventDaoImpl();
+        return event.getEventDetailsById(eventId);
+    }
     @RequestMapping(value = "/event_prices", method = RequestMethod.GET)
     public ResponseEntity<?> eventsPrices(@RequestParam("event_id") Integer eventId) throws SQLException {
         EventDao event = new EventDaoImpl();

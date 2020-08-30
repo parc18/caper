@@ -8,5 +8,6 @@ public interface EventDao {
     Response getAllEvents();
     ResponseEntity<?> getEventByCityId(Integer city, Integer gameId);
     ResponseEntity<?> getEventPrice(Integer eventId);
+    ResponseEntity<?> getEventDetailsById(Integer eventId);
 
 }
