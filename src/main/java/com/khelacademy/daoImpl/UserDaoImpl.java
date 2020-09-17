@@ -30,15 +30,18 @@ import com.khelacademy.dao.UserDao;
 import com.khelacademy.dto.UserDto;
 import com.khelacademy.model.AdvancedUserDetail;
 import com.khelacademy.model.BasicUserDetails;
+import com.khelacademy.model.Team;
 import com.khelacademy.model.UserUpdate;
 import com.khelacademy.service.JwtUserDetailsService;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
+import com.khelacademy.www.pojos.Invitation;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.pojos.PriceDetails;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
+import com.khelacademy.www.services.TeamStatus;
 import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.EmailService;
 import com.khelacademy.www.utils.GameCategory;
@@ -563,5 +566,26 @@ public class UserDaoImpl implements UserDao {
 			return results.get(0).getId();
 		}
 		return null;
+	}
+
+	@Override
+	public List<Invitation> getInvitations(String userId, String status) {
+		Session session = this.sessionFactory.getCurrentSession();
+		Query countQuery = session.createQuery(
+		        "select T.teamName, G.displayName, G.gameId, U.userName, U.email from TeamDetail TD INNER JOIN Team T ON TD.teamId = T.id "
+		        + "INNER JOIN BasicUserDetails U ON U.id=T.userId INNER JOIN Games G ON G.gameId=T.gameId where TD.userId =:userId AND TD.status =:status");
+		countQuery.setLong("userId", getUserIdByUserName(userId));
+		countQuery.setString("status", status);
+		List<Object[]> list = countQuery.list();
+		List<Invitation> invitation = new ArrayList<Invitation>();
+		for(Object[] arr : list) {
+			Invitation inv = new Invitation();
+			inv.setGameId((Integer) arr[2]);
+			inv.setGame((String) arr[1]);
+			inv.setUserName((String) arr[3]);
+			inv.setUserEmail((String) arr[4]);
+			invitation.add(inv);
+		}
+		return invitation;
 	}
 }

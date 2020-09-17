@@ -1,6 +1,7 @@
 package com.khelacademy.www.api;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
@@ -8,6 +9,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,6 +29,7 @@ import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.dto.UserDto;
 import com.khelacademy.service.JwtUserDetailsService;
 import com.khelacademy.www.pojos.ApiFormatter;
+import com.khelacademy.www.pojos.Invitation;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.UserUtils;
@@ -98,5 +101,12 @@ public class UserController {
     public ResponseEntity<?> events(@RequestParam("city_id") Integer cityId, @RequestParam("game_id") Integer gameId) throws SQLException {
         EventDao event = new EventDaoImpl();
         return event.getEventByCityId(cityId, gameId);
+    }
+    @RequestMapping(value = "/user/invitation", method = RequestMethod.GET)
+    public ResponseEntity<?> invites(@RequestParam("status") String status) throws SQLException {
+    	SecurityContext context = SecurityContextHolder.getContext();
+		String userName = context.getAuthentication().getName();
+		ApiFormatter<List<Invitation>> invs = ServiceUtil.convertToSuccessResponse(userDao.getInvitations(userName, status));
+		return ResponseEntity.status(HttpStatus.OK).body(invs);
     }
 }

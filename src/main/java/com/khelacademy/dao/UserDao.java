@@ -1,6 +1,7 @@
 package com.khelacademy.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.ws.rs.core.Response;
 
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import com.khelacademy.dto.UserDto;
 import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.www.pojos.BookingRequestObject;
+import com.khelacademy.www.pojos.Invitation;
 import com.khelacademy.www.pojos.User;
 
 public interface UserDao {
@@ -43,4 +45,6 @@ public interface UserDao {
 	ResponseEntity<?> userVerifyEmailOtpAfterUpdate(UserDto userRequest);
 	
 	public Long getUserIdByUserName(String userName);
+	
+	public List<Invitation> getInvitations(String userName, String status);
 }
