@@ -41,4 +41,6 @@ public interface UserDao {
 	public String getUserNameByEmail(String email);
 
 	ResponseEntity<?> userVerifyEmailOtpAfterUpdate(UserDto userRequest);
+	
+	public Long getUserIdByUserName(String userName);
 }

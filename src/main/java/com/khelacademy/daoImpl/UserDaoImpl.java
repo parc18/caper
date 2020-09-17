@@ -550,4 +550,18 @@ public class UserDaoImpl implements UserDao {
 		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 
 	}
+
+	@Override
+	public Long getUserIdByUserName(String userName) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.userName =:username";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("username", userName);
+		List<BasicUserDetails> results = query.list();
+		if (results != null && results.size() == 1) {
+			return results.get(0).getId();
+		}
+		return null;
+	}
 }
