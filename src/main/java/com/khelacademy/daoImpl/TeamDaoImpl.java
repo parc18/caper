@@ -114,6 +114,8 @@ public class TeamDaoImpl implements TeamDao {
 
 	@Override
 	public void inviteToTeam(TeamDto teamDto) throws Exception {
+		if(teamDto.getInviteeUserId() == teamDto.getUserId())
+			throw new Exception("You can not invite yourself !!", new Exception());
 		validateEntryPosibility(teamDto);
 		validateAlreadyInvited(teamDto);
 		TeamDetail teamDetail = new TeamDetail();
@@ -143,7 +145,7 @@ public class TeamDaoImpl implements TeamDao {
 
 	}
 
-	private void validateEntryPosibility(TeamDto teamDto) throws Exception {
+	private Team validateEntryPosibility(TeamDto teamDto) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
 		String hql = "FROM Team E WHERE E.id =:id";
 		@SuppressWarnings("unchecked")
@@ -153,15 +155,17 @@ public class TeamDaoImpl implements TeamDao {
 		if(results.size() == 1) {
 			if(results.get(0).getMaxPlayer() - 1 <= 0)
 				throw new Exception("Sorry!! Team size is FULL.", new Exception());
+			else {
+				 return results.get(0);
+			}
 		}else {
 			throw new Exception("Internal Development problem , Please report", new Exception());
 		}
-	
 	}
 
 	@Override
 	public void takeActionOnInvite(TeamDto teamDto) throws Exception {
-		validateEntryPosibility(teamDto);
+		Team t = validateEntryPosibility(teamDto);
 		Session session = this.sessionFactory.getCurrentSession();
 		String hql = "FROM TeamDetail E WHERE E.teamId =:tId AND E.userId =:userId AND E.status =:status";
 		@SuppressWarnings("unchecked")
@@ -174,9 +178,17 @@ public class TeamDaoImpl implements TeamDao {
 			if(!EnumUtils.isValidEnum(TeamStatus.class, teamDto.getStatus())) {
 				 throw new Exception("Internal Development Enum problem , Please report", new Exception());
 			}
+			
 			results.get(0).setStatus(teamDto.getStatus());
 			session.update(results.get(0));
+			if(t.getPlayerCount() == null) {
+				t.setPlayerCount(1);
+			}else {
+				t.setPlayerCount(t.getPlayerCount()+1);
+			}
+			session.update(t);
 		}else {
+			session.flush();
 			throw new Exception("Internal Development problem , Please report", new Exception());
 		}
 	}

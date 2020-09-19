@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
@@ -37,7 +39,9 @@ import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.Invitation;
 import com.khelacademy.www.pojos.MyErrors;
+import com.khelacademy.www.pojos.MyTeams;
 import com.khelacademy.www.pojos.PriceDetails;
+import com.khelacademy.www.pojos.TeamDetailResponse;
 import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.PresenceStatus;
 import com.khelacademy.www.services.ServiceUtil;
@@ -575,7 +579,8 @@ public class UserDaoImpl implements UserDao {
 		        "select T.teamName, G.displayName, G.gameId, U.userName, U.email from TeamDetail TD INNER JOIN Team T ON TD.teamId = T.id "
 		        + "INNER JOIN BasicUserDetails U ON U.id=T.userId INNER JOIN Games G ON G.gameId=T.gameId where TD.userId =:userId AND TD.status =:status");
 		countQuery.setLong("userId", getUserIdByUserName(userId));
-		countQuery.setString("status", status);
+		if(!status.equals("ALL"))
+			countQuery.setString("status", status);
 		List<Object[]> list = countQuery.list();
 		List<Invitation> invitation = new ArrayList<Invitation>();
 		for(Object[] arr : list) {
@@ -587,5 +592,70 @@ public class UserDaoImpl implements UserDao {
 			invitation.add(inv);
 		}
 		return invitation;
+	}
+
+	@Override
+	public MyTeams myTeams(String userName) {
+		Long userId = getUserIdByUserName(userName);
+		Session session = this.sessionFactory.getCurrentSession();
+		Query countQuery = session.createQuery("select t.id as team_id, "
+				+ "t.teamName as team_name, "
+				+ "u1.userName as owner_user_name, "
+				+ "u2.userName as suser_name , "
+				+ "t.userId as owner_id, "
+				+ "t.playerCount as total_payer, "
+				+ "t.maxPlayer as max_player, "
+				+ "t.minPlayer as min_player, "
+				+ "t.gameId as game_id, "
+				+ "td.userId as second_userId, "
+				+ "g.displayName as game_name, "
+				+ "u1.email as owner_email, "
+				+ "u2.email as joinee_email, "
+				+ "td.status as join_status "
+				+ "from Team t left  outer join TeamDetail td "
+				+ "on t.id = td.teamId left outer join Games g "
+				+ "on t.gameId = g.gameId left join BasicUserDetails as u1 "
+				+ "on t.userId = u1.id left join BasicUserDetails u2 "
+				+ "on td.userId = u2.id where  t.userId =:ownerId or td.userId =:joineeId");
+		countQuery.setLong("joineeId", userId);
+		countQuery.setLong("ownerId", userId);
+		List<Object[]> list = countQuery.list();
+		List<TeamDetailResponse> myTeams = new ArrayList<>();
+		List<TeamDetailResponse> joinedTeams = new ArrayList<>();
+		Map<Long, TeamDetailResponse> mTeams = new HashMap<>();
+		for(Object[] arr : list) {
+			TeamDetailResponse t = new TeamDetailResponse();
+			if(mTeams.get((Long) arr[0]) == null){
+				Map<String, String> playerInfo =  new HashMap<>();
+				t.setTeamId(((Long) arr[0]).intValue());
+				t.setUserName((String) arr[2]);
+				t.setCurrentPlayerCount((Integer) arr[5]== null ? 1 : (Integer) arr[5]+1);
+				t.setGameId((Integer) arr[8]);
+				t.setGameName((String) arr[10]);
+				t.setMaxPlayer((Integer) arr[6]);
+				t.setMinPlayer((Integer) arr[7]);
+				t.setTeamName((String) arr[1]);
+				playerInfo.put((String) arr[2], (String) arr[11]);
+				if(arr[3] != null && arr[12] != null &&  ((String) arr[13]).equals(TeamStatus.ACCEPTED.toString()))
+					playerInfo.put((String) arr[3], (String) arr[12]);
+				t.setPlayerInfo(playerInfo);
+				mTeams.put((Long) arr[0], t);
+			}else {
+				if(arr[3] != null && arr[12] != null  && ((String) arr[13]).equals(TeamStatus.ACCEPTED.toString()))
+					mTeams.get((Long) arr[0]).getPlayerInfo().put((String) arr[3], (String) arr[12]);
+			}
+		}
+        for (Map.Entry mapElement : mTeams.entrySet()) { 
+            Long key = (Long)mapElement.getKey(); 
+            if(((TeamDetailResponse)mapElement.getValue()).getUserName().equals(userName))
+            	myTeams.add((TeamDetailResponse)mapElement.getValue());
+            else
+            	joinedTeams.add((TeamDetailResponse)mapElement.getValue());
+ 
+        } 
+		MyTeams teamRes = new MyTeams();
+		teamRes.setMyTeams(myTeams);
+		teamRes.setJoinedTeams(joinedTeams);
+		return teamRes;
 	}
 }

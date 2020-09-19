@@ -11,6 +11,7 @@ import com.khelacademy.dto.UserDto;
 import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.Invitation;
+import com.khelacademy.www.pojos.MyTeams;
 import com.khelacademy.www.pojos.User;
 
 public interface UserDao {
@@ -47,4 +48,7 @@ public interface UserDao {
 	public Long getUserIdByUserName(String userName);
 	
 	public List<Invitation> getInvitations(String userName, String status);
+	
+	public MyTeams myTeams(String userName);
+	
 }
