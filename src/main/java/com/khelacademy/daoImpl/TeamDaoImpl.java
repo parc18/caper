@@ -41,6 +41,8 @@ public class TeamDaoImpl implements TeamDao {
 	private GamesDao gameDao;
 	@Override
 	public void createTeam(TeamDto teamDto) throws Exception {
+		if(teamDto.getTeamName() == null)
+			throw new Exception("Please provide a TEAM name", new Exception());
 		validateTeamName(teamDto);
 		validateTeamCount(teamDto);
 		Games game = gameDao.getGameById(teamDto.getGameId());
@@ -75,10 +77,11 @@ public class TeamDaoImpl implements TeamDao {
 
 	private void validateTeamName(TeamDto teamDto) throws Exception {
 		Session session = this.sessionFactory.getCurrentSession();
-		String hql = "FROM Team E WHERE E.teamName =:name";
+		String hql = "FROM Team E WHERE E.teamName =:name AND E.userId=:userId";
 		@SuppressWarnings("unchecked")
 		Query<Team> query = session.createQuery(hql);
 		query.setString("name", teamDto.getTeamName());
+		query.setLong("userId", teamDto.getUserId());
 		List<Team> results = query.list();
 		if(results.size() > 0)
 			throw new Exception("Team name aleady exists!! Please choose a new TEAM NAME", new Exception());
@@ -153,6 +156,8 @@ public class TeamDaoImpl implements TeamDao {
 		query.setInteger("id", teamDto.getTeamId());
 		List<Team> results = query.list();
 		if(results.size() == 1) {
+			if(results.get(0).getTeamName() == null)
+				throw new Exception("Sorry!! Unable to join this team choose another team.", new Exception());
 			if(results.get(0).getMaxPlayer() - 1 <= 0)
 				throw new Exception("Sorry!! Team size is FULL.", new Exception());
 			else {
@@ -206,6 +211,45 @@ public class TeamDaoImpl implements TeamDao {
 				results.get(0).setTeamName(teamDto.getTeamName());;
 				session.update(results.get(0));
 		}
+	}
+
+	@Override
+	public Team createSoloTeam(TeamDto teamDto) throws Exception {
+		Team foundTeam = validateSoloTeamName(teamDto);
+		if(foundTeam != null)
+			return foundTeam;
+		//validateTeamCount(teamDto);
+		Games game = gameDao.getGameById(teamDto.getGameId());
+		
+		Team team = new Team();
+		long timeNow = Calendar.getInstance().getTimeInMillis();
+		team.setCreatedAt(new Timestamp(timeNow));
+		team.setGameId(teamDto.getGameId());
+		team.setTeamName(null);
+		team.setUserId(teamDto.getUserId());
+		team.setMaxPlayer(game.getMaxPlayer());
+		team.setMinPlayer(game.getMinPlayer());
+		team.setStatus("ACTIVE");
+		team.setUserId(teamDto.getUserId());
+		Session session = this.sessionFactory.getCurrentSession();
+		session.save(team);
+		return team;
+	}
+
+	private Team validateSoloTeamName(TeamDto teamDto) throws Exception {
+		if(teamDto.getGameId() < 1)
+			throw new Exception("Game id is missing !!", new Exception());
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM Team E WHERE E.teamName is NULL AND E.userId=:userId AND E.gameId =:gameId";
+		@SuppressWarnings("unchecked")
+		Query<Team> query = session.createQuery(hql);
+		//query.setString("name", null);
+		query.setLong("userId", teamDto.getUserId());
+		query.setInteger("gameId", teamDto.getGameId());
+		List<Team> results = query.list();
+		if(results.size() == 1)
+			return results.get(0);
+		return null;
 	}
 
 }
