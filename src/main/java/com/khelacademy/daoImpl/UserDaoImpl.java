@@ -272,12 +272,12 @@ public class UserDaoImpl implements UserDao {
 			List<BasicUserDetails> results = query.list();
 			String token = null;
 			if (results != null && results.size() == 1) {
-				token = jwtTokenUtil.generateToken(results.get(0));
+				token = jwtTokenUtil.generateToken(results.get(0), results.get(0).getUserType());
 			} else {
 				BasicUserDetails user = new BasicUserDetails(userReq.getPhone(), UserConstants.USER_OTP_VERIFIED);
 				user.setPhoneVerified(1);
 				session.save(user);
-				token = jwtTokenUtil.generateToken(user);
+				token = jwtTokenUtil.generateToken(user, user.getUserType());
 			}
 			ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse(token);
 			return ResponseEntity.status(HttpStatus.OK).body(success);
@@ -351,7 +351,7 @@ public class UserDaoImpl implements UserDao {
 		query.setString("pass", UserUtils.getEncryptedPass(userReq.getPassWord()));
 		List<BasicUserDetails> results = query.list();
 		if (results != null && results.size() == 1) {
-			final String token = jwtTokenUtil.generateToken(results.get(0));
+			final String token = jwtTokenUtil.generateToken(results.get(0), results.get(0).getUserType());
 			ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse(token);
 			return ResponseEntity.status(HttpStatus.OK).body(success);
 
@@ -657,5 +657,16 @@ public class UserDaoImpl implements UserDao {
 		teamRes.setMyTeams(myTeams);
 		teamRes.setJoinedTeams(joinedTeams);
 		return teamRes;
+	}
+
+	@Override
+	public BasicUserDetails getUserByUserName(String userName) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.userName =:userName";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("userName", userName);
+		List<BasicUserDetails> results = query.list();		
+		return results.get(0);
 	}
 }

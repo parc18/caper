@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -19,6 +20,7 @@ import com.khelacademy.dto.TeamDto;
 import com.khelacademy.model.Challenge;
 import com.khelacademy.model.Team;
 import com.khelacademy.www.services.ChallengeStatus;
+import com.khelacademy.www.services.TeamStatus;
 
 @Component
 @Transactional
@@ -128,6 +130,38 @@ public class ChallengeDaoImple implements ChallengeDao {
 		
 	}
 	@Override
-	public void actionOnChallenge(ChallengeDto challengeDto) throws Exception {}
+	public void actionOnChallenge(ChallengeDto challengeDto) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM Challenge E WHERE E.id =:cId AND (E.status =:s1 OR E.status =:s2)";
+		@SuppressWarnings("unchecked")
+		Query<Challenge> query = session.createQuery(hql);
+		query.setInteger("cId", challengeDto.getChallengeId());
+		query.setString("s1", ChallengeStatus.CHALLENGED.toString());
+		query.setString("s2", ChallengeStatus.CHALLENGE_DECLINED.toString());
+		List<Challenge> results = query.list();
+		if(results.size() == 1) {
+			if(!EnumUtils.isValidEnum(ChallengeStatus.class, challengeDto.getStatus())) {
+				 throw new Exception("Internal Development Enum problem , Please report", new Exception());
+			}
+			checkIfChallengeBelongsToThisUser(results.get(0), challengeDto.getChallegeeUserName());
+			results.get(0).setStatus(challengeDto.getStatus());
+		}else {
+			throw new Exception("No challenge found", new Exception());
+		}
+	}
+
+	private void checkIfChallengeBelongsToThisUser(Challenge challenge, String userName) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+
+		Query countQuery = session.createQuery(
+		        "select count(*) FROM Team E inner join BasicUserDetails U on E.userId = U.id WHERE U.userName =:userName AND E.id =:teamId");
+		countQuery.setInteger("teamId", challenge.getTeamId2());
+		countQuery.setString("userName",userName);
+		Long count = (Long)countQuery.uniqueResult();
+		if(count !=1 ) {
+			throw new Exception("No challenge found", new Exception());
+		}
+		
+	}
 
 }

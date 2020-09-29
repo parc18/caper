@@ -44,4 +44,21 @@ public class ChallengeController {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 		}
     }
+    @RequestMapping(value = "/challenge/action", method = RequestMethod.POST)
+    public ResponseEntity<?> actionOnChallange(@RequestBody ChallengeDto challengeDto) throws SQLException {
+    	
+    	SecurityContext context = SecurityContextHolder.getContext();
+		String userName = context.getAuthentication().getName();
+		challengeDto.setChallegeeUserName(userName);
+		try {
+			challengeDao.actionOnChallenge(challengeDto);
+			ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+			return ResponseEntity.status(HttpStatus.OK).body(success);
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			MyErrors error = new MyErrors(e.getMessage());
+			ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+		}
+    }
 }

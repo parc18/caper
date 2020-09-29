@@ -1,6 +1,7 @@
 package com.khelacademy.dto;
 
 public class ChallengeDto {
+	private Integer challengeId;
 	private Integer challegerTeamId;
 	private Long challegerUserId;
 	private String challegerUserName;
@@ -8,6 +9,7 @@ public class ChallengeDto {
 	private Integer challengeeTeamId;
 	private Integer challengeeUserId;
 	private Integer gameId;
+	private String status;
 	public Integer getChallegerTeamId() {
 		return challegerTeamId;
 	}
@@ -49,5 +51,17 @@ public class ChallengeDto {
 	}
 	public void setChallegeeUserName(String challegeeUserName) {
 		this.challegeeUserName = challegeeUserName;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Integer getChallengeId() {
+		return challengeId;
+	}
+	public void setChallengeId(Integer challengeId) {
+		this.challengeId = challengeId;
 	}
 }

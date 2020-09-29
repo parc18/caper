@@ -34,6 +34,7 @@ public class TeamController {
 	@RequestMapping(value = "team", method = RequestMethod.POST)
 	public ResponseEntity<?> createTeam(@RequestBody TeamDto teamRequest) {
 		SecurityContext context = SecurityContextHolder.getContext();
+		LOGGER.info("lols" + context.getAuthentication().getAuthorities().toString());
 		String userName = context.getAuthentication().getName();
 		teamRequest.setUserId(userDao.getUserIdByUserName(userName));
 		try {

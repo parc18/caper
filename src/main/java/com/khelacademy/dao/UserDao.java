@@ -51,4 +51,6 @@ public interface UserDao {
 	
 	public MyTeams myTeams(String userName);
 	
+	public BasicUserDetails getUserByUserName(String userName);
+	
 }

@@ -2,6 +2,8 @@ package com.khelacademy.config;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.FilterChain;
@@ -11,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -26,6 +30,7 @@ import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.services.ServiceUtil;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Component
@@ -39,6 +44,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+//	     response.addHeader("Access-Control-Allow-Origin", "*");
+//	        response.addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, HEAD");
+//	        response.addHeader("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+//	        response.addHeader("Access-Control-Expose-Headers", "Access-Control-Allow-Origin, Access-Control-Allow-Credentials");
+//	        response.addHeader("Access-Control-Allow-Credentials", "true");
+//	        response.addIntHeader("Access-Control-Max-Age", 10);
 		if (isMaximumRequestsPerSecondExceeded(request)) {
 			CustomResponse(HttpStatus.TOO_MANY_REQUESTS, response);
 			return;
@@ -46,12 +57,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		final String requestTokenHeader = request.getHeader("Authorization");
 		String username = null;
 		String jwtToken = null;
+		String role = null;
 // JWT Token is in the form "Bearer token". Remove Bearer word and get
 // only the Token
 		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
 			jwtToken = requestTokenHeader.substring(7);
 			try {
 				username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+				Claims claim = jwtTokenUtil.getAllClaimsFromToken(jwtToken);
+				role =  claim.get("ROLE", String.class);
+				
 			} catch (IllegalArgumentException e) {
 				System.out.println("Unable to get JWT Token");
 			} catch (ExpiredJwtException e) {
@@ -66,8 +81,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 // if token is valid configure Spring Security to manually set
 // authentication
 			if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+				List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+		        list.add(new SimpleGrantedAuthority("ROLE_" + role));
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
+						userDetails, null, list);
 				usernamePasswordAuthenticationToken
 						.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 // After setting the Authentication in the context, we specify

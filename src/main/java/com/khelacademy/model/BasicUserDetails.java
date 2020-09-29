@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,12 +17,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "basic_user_detail")
 public class BasicUserDetails implements UserDetails{
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
 	public Integer getEmailVerified() {
 		return emailVerified;
 	}
@@ -68,6 +80,10 @@ public class BasicUserDetails implements UserDetails{
 	@Column(name = "otp_expire")
 	@JsonIgnore
 	private Timestamp otpExpire;
+	
+	@Column(name = "user_type")
+	@JsonIgnore
+	private String userType;	
 	
 	@Column(name = "email_verified")
 	@JsonIgnore
@@ -130,8 +146,9 @@ public class BasicUserDetails implements UserDetails{
 	}
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
+		List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+        list.add(new SimpleGrantedAuthority("ROLE_" + userType));
+        return list;
 	}
 	@Override
 	public String getPassword() {
