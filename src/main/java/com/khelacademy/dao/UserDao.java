@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import org.springframework.http.ResponseEntity;
 
 import com.khelacademy.dto.UserDto;
+import com.khelacademy.model.AdvancedUserDetail;
 import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.Invitation;
@@ -52,5 +53,7 @@ public interface UserDao {
 	public MyTeams myTeams(String userName);
 	
 	public BasicUserDetails getUserByUserName(String userName);
+	
+	public User getAdvanceUserByUserName(String userName);
 	
 }

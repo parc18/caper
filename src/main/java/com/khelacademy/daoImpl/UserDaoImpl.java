@@ -17,6 +17,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -421,11 +422,12 @@ public class UserDaoImpl implements UserDao {
 	private String getUserName() {
 		Session session = this.sessionFactory.getCurrentSession();
 		Criteria c = session.createCriteria(BasicUserDetails.class);
-		c.addOrder(Order.desc("id"));
-		c.setMaxResults(2);
+		c.addOrder(Order.desc("userName"));
+		c.setMaxResults(1);
+		c.add(Restrictions.isNotNull("userName"));
 		List<BasicUserDetails> users = (List<BasicUserDetails>) c.list();
-		if (users.size() >= 2)
-			return UserUtils.getAlphaNumericNextUserNameForGivenLastUserName(users.get(1).getUserName());
+		if (users.size() > 0)
+			return UserUtils.getAlphaNumericNextUserNameForGivenLastUserName(users.get(0).getUserName());
 		return "A";
 	}
 
@@ -576,7 +578,7 @@ public class UserDaoImpl implements UserDao {
 	public List<Invitation> getInvitations(String userId, String status) {
 		Session session = this.sessionFactory.getCurrentSession();
 		Query countQuery = session.createQuery(
-		        "select T.teamName, G.displayName, G.gameId, U.userName, U.email from TeamDetail TD INNER JOIN Team T ON TD.teamId = T.id "
+		        "select T.teamName, G.displayName, G.gameId, U.userName, U.email, T.id from TeamDetail TD INNER JOIN Team T ON TD.teamId = T.id "
 		        + "INNER JOIN BasicUserDetails U ON U.id=T.userId INNER JOIN Games G ON G.gameId=T.gameId where TD.userId =:userId AND TD.status =:status");
 		countQuery.setLong("userId", getUserIdByUserName(userId));
 		if(!status.equals("ALL"))
@@ -589,6 +591,7 @@ public class UserDaoImpl implements UserDao {
 			inv.setGame((String) arr[1]);
 			inv.setUserName((String) arr[3]);
 			inv.setUserEmail((String) arr[4]);
+			inv.setTeamId((Integer) arr[5]);
 			invitation.add(inv);
 		}
 		return invitation;
@@ -668,5 +671,29 @@ public class UserDaoImpl implements UserDao {
 		query.setString("userName", userName);
 		List<BasicUserDetails> results = query.list();		
 		return results.get(0);
+	}
+
+	@Override
+	public User getAdvanceUserByUserName(String userName) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM AdvancedUserDetail E WHERE E.userName =:userName";
+		@SuppressWarnings("unchecked")
+		Query<AdvancedUserDetail> query = session.createQuery(hql);
+		query.setString("userName", userName);
+		List<AdvancedUserDetail> results = query.list();
+		if(results.size() > 0) {
+			User user =  new User();
+			String[] splitEmail = results.get(0).getEmail().split("@");
+			if(results.get(0).getEmail().length()>=2)
+				user.setEmail(splitEmail[0].substring(0, 2)+"****"+splitEmail[0].substring(splitEmail[0].length()-2)+ "@"+ splitEmail[1]);
+			else
+				user.setEmail(splitEmail[0]+"****@"+splitEmail[1]);
+			user.setFirstName(results.get(0).getFirstName());
+			user.setLastName(results.get(0).getLastName());
+			user.setUserName(userName);
+			user.setUserIdL(results.get(0).getUserId());
+			return user;
+		}
+		return null;
 	}
 }

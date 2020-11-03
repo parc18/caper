@@ -5,6 +5,7 @@ public class Invitation {
 	private String game;
 	private String userEmail;
 	private String userFirstName;
+	private Integer teamId;
 	public String getUserName() {
 		return userName;
 	}
@@ -34,6 +35,12 @@ public class Invitation {
 	}
 	public void setGameId(Integer gameId) {
 		this.gameId = gameId;
+	}
+	public Integer getTeamId() {
+		return teamId;
+	}
+	public void setTeamId(Integer teamId) {
+		this.teamId = teamId;
 	}
 	private Integer gameId;
 }

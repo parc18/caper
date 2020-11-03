@@ -133,29 +133,40 @@ public class MatchDaoImpl implements MatchDao {
 				results1.get(0).setStatus(MatchStatus.TEAM_2_WON.toString());
 			}
 			session.update(results1.get(0));
-			calculateScores(results1.get(0));
-			return results1.get(0);
+			Match m = calculateScores(results1.get(0));
+			String qryString = "update Match E set E.amortizeScore1=:score1, E.amortizeScore2=:score2 WHERE E.id =:id";
+			Query query = session.createQuery(qryString);
+			query.setInteger("id", matchDto.getMatchId());
+			query.setDouble("score1", m.getAmortizeScore1());
+			query.setDouble("score2", m.getAmortizeScore2());	
+			query.executeUpdate();
+			return m;
 		}else {
 			throw new Exception("Internal Devlopment error, please report !!", new Exception());
 		}
 	}
 
-	private void calculateScores(Match match) {
+	private Match calculateScores(Match match) {
 		Double teamOneAmortizedScore = 0.0;
 		Double teamTwoAmortizedScore = 0.0;
 		Integer pointDiff = Math.abs(match.getScore1() - match.getScore2());
 		Double timeDiff = (double) (Math.abs(match.getMatchStartTime().getSeconds() - match.getMatchEndTime().getSeconds())/5);
 		if(match.getStatus().equalsIgnoreCase(MatchStatus.TEAM_1_WON.toString())) {
 			teamOneAmortizedScore = amortizedScore(CalculationConst.WON_POINT + pointDiff + timeDiff);
-			teamTwoAmortizedScore = amortizedScore(CalculationConst.LOST_POINT - pointDiff + timeDiff);
+			teamTwoAmortizedScore = amortizedScore(pointDiff - CalculationConst.LOST_POINT + timeDiff);
 		}else {
 			teamTwoAmortizedScore = amortizedScore(CalculationConst.WON_POINT + pointDiff + timeDiff);
-			teamOneAmortizedScore = amortizedScore(CalculationConst.LOST_POINT - pointDiff + timeDiff);
+			teamOneAmortizedScore = amortizedScore(pointDiff - CalculationConst.LOST_POINT + timeDiff);
 		}
-		// TODO Auto-generated method stub
+		match.setAmortizeScore1(teamOneAmortizedScore);
+		match.setAmortizeScore2(teamTwoAmortizedScore);
+		return match;
 		
 	}
 	private static double amortizedScore(double logNumber) {
+		if(logNumber <=0 ) {
+			return 0;
+		}
 	    return Math.log(logNumber) / Math.log(CalculationConst.LOG_BASE);
 	}
 

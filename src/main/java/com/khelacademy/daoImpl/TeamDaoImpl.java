@@ -40,7 +40,7 @@ public class TeamDaoImpl implements TeamDao {
 	@Autowired
 	private GamesDao gameDao;
 	@Override
-	public void createTeam(TeamDto teamDto) throws Exception {
+	public List<Team> createTeam(TeamDto teamDto) throws Exception {
 		if(teamDto.getTeamName() == null)
 			throw new Exception("Please provide a TEAM name", new Exception());
 		validateTeamName(teamDto);
@@ -59,6 +59,12 @@ public class TeamDaoImpl implements TeamDao {
 		team.setUserId(teamDto.getUserId());
 		Session session = this.sessionFactory.getCurrentSession();
 		session.save(team);
+		String hql = "FROM Team E WHERE E.userId=:userId";
+		@SuppressWarnings("unchecked")
+		Query<Team> query = session.createQuery(hql);
+		query.setLong("userId", teamDto.getUserId());
+		List<Team> results = query.list();
+		return results;
 		
 	}
 
@@ -250,6 +256,17 @@ public class TeamDaoImpl implements TeamDao {
 		if(results.size() == 1)
 			return results.get(0);
 		return null;
+	}
+
+	@Override
+	public List<Team> myTeam(TeamDto teamDto) throws Exception {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM Team E WHERE E.userId=:userId";
+		@SuppressWarnings("unchecked")
+		Query<Team> query = session.createQuery(hql);
+		query.setLong("userId", teamDto.getUserId());
+		List<Team> results = query.list();
+		return results;
 	}
 
 }

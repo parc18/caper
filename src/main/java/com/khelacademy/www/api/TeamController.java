@@ -1,5 +1,7 @@
 package com.khelacademy.www.api;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.khelacademy.dao.TeamDao;
 import com.khelacademy.dao.UserDao;
 import com.khelacademy.dto.TeamDto;
+import com.khelacademy.model.Team;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.MyErrors;
 import com.khelacademy.www.services.ServiceUtil;
@@ -38,8 +41,24 @@ public class TeamController {
 		String userName = context.getAuthentication().getName();
 		teamRequest.setUserId(userDao.getUserIdByUserName(userName));
 		try {
-			teamDao.createTeam(teamRequest);
-			ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+			ApiFormatter<List<Team>> success = ServiceUtil.convertToSuccessResponse(teamDao.createTeam(teamRequest));
+			return ResponseEntity.status(HttpStatus.OK).body(success);
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			MyErrors error = new MyErrors(e.getMessage());
+			ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+		}
+	}
+	@RequestMapping(value = "team", method = RequestMethod.GET)
+	public ResponseEntity<?> getMyTeam() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		LOGGER.info("lols" + context.getAuthentication().getAuthorities().toString());
+		String userName = context.getAuthentication().getName();
+		TeamDto teamRequest = new TeamDto();
+		teamRequest .setUserId(userDao.getUserIdByUserName(userName));
+		try {
+			ApiFormatter<List<Team>> success = ServiceUtil.convertToSuccessResponse(teamDao.myTeam(teamRequest));
 			return ResponseEntity.status(HttpStatus.OK).body(success);
 		}catch (Exception e) {
 			LOGGER.error(e.getMessage());

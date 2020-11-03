@@ -34,6 +34,12 @@ public class Match {
 	@Column(name = "score_t2")
 	private Integer score2;
 	
+	@Column(name = "amortize_score_t1")
+	private Double amortizeScore1;
+
+	@Column(name = "amortize_score_t2")
+	private Double amortizeScore2;
+	
 	@Column(name = "match_start_at")
 	private Timestamp matchStartTime;
 	
@@ -122,4 +128,21 @@ public class Match {
 	public void setMatchEndTime(Timestamp matchEndTime) {
 		this.matchEndTime = matchEndTime;
 	}
+
+	public Double getAmortizeScore1() {
+		return amortizeScore1;
+	}
+
+	public void setAmortizeScore1(Double amortizeScore1) {
+		this.amortizeScore1 = amortizeScore1;
+	}
+
+	public Double getAmortizeScore2() {
+		return amortizeScore2;
+	}
+
+	public void setAmortizeScore2(Double amortizeScore2) {
+		this.amortizeScore2 = amortizeScore2;
+	}
+
 }

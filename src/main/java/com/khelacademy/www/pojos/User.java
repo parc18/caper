@@ -12,6 +12,8 @@ public class User {
     private String status;
     private String welcomeDate;
     private String sessionValue;
+    private String userName;
+    private Long userIdL;
 
     public String getEmail() {
         return email;
@@ -99,6 +101,22 @@ public class User {
 
 	public void setSessionValue(String sessionValue) {
 		this.sessionValue = sessionValue;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public Long getUserIdL() {
+		return userIdL;
+	}
+
+	public void setUserIdL(Long userIdL) {
+		this.userIdL = userIdL;
 	}
 
 }

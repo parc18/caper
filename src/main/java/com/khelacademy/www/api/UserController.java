@@ -26,6 +26,7 @@ import com.khelacademy.dto.UserDto;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.Invitation;
 import com.khelacademy.www.pojos.MyTeams;
+import com.khelacademy.www.pojos.User;
 import com.khelacademy.www.services.ServiceUtil;
 import com.khelacademy.www.utils.UserUtils;
 
@@ -109,6 +110,13 @@ public class UserController {
     	SecurityContext context = SecurityContextHolder.getContext();
 		String userName = context.getAuthentication().getName();
 		ApiFormatter<MyTeams> teams = ServiceUtil.convertToSuccessResponse(userDao.myTeams(userName));
+		return ResponseEntity.status(HttpStatus.OK).body(teams);
+    }
+    @RequestMapping(value = "/user/search", method = RequestMethod.GET)
+    public ResponseEntity<?> searchUser(@RequestParam("username") String status) throws SQLException {
+    	SecurityContext context = SecurityContextHolder.getContext();
+		String userName = context.getAuthentication().getName();
+		ApiFormatter<User> teams = ServiceUtil.convertToSuccessResponse(userDao.getAdvanceUserByUserName(status));
 		return ResponseEntity.status(HttpStatus.OK).body(teams);
     }
 }
