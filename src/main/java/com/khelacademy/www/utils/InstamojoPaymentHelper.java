@@ -5,6 +5,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import com.instamojo.wrapper.api.Instamojo;
 import com.instamojo.wrapper.api.InstamojoImpl;
@@ -16,36 +17,40 @@ import com.instamojo.wrapper.response.PaymentOrderDetailsResponse;
 import com.khelacademy.www.api.ApiEndpoint;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.Order;
-
+@Configuration
 public class InstamojoPaymentHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InstamojoPaymentHelper.class);
 	private PaymentOrder order;
 	private Instamojo api = null;
+	@Value("${instaMojoClientId}")
 	private String instaMojoClientId;
+	@Value("${instaMojoSecretKey}")
 	private String instaMojoSecretKey;
+	@Value("${instaMojoApiUrl}")
 	private String instaMojoApiUrl;
+	@Value("${instaMojoTokenUrl}")
 	private String instaMojoTokenUrl;
 	CreatePaymentOrderResponse createPaymentOrderResponse = null;
 	
-	@Value("${instaMojoApiUrl}")
-	public void setInstaMojoApiUrl(String instaMojoApiUrl) {
-		this.instaMojoApiUrl = instaMojoApiUrl;
-	}
-	
-	@Value("${instaMojoTokenUrl}")
-	public void setInstaMojoTokenUrl(String instaMojoTokenUrl) {
-		this.instaMojoTokenUrl = instaMojoTokenUrl;
-	}
-	
-	@Value("${instaMojoClientId}")
-	public void setInstaMojoClientId(String instaMojoClientId) {
-		this.instaMojoClientId = instaMojoClientId;
-	}
-	
-	@Value("${instaMojoSecretKey}")
-	public void setInstaMojoSecretKey(String instaMojoSecretKey) {
-		this.instaMojoSecretKey = instaMojoSecretKey;
-	}
+//	@Value("${instaMojoApiUrl}")
+//	public void setInstaMojoApiUrl(String instaMojoApiUrl) {
+//		this.instaMojoApiUrl = instaMojoApiUrl;
+//	}
+//	
+//	@Value("${instaMojoTokenUrl}")
+//	public void setInstaMojoTokenUrl(String instaMojoTokenUrl) {
+//		this.instaMojoTokenUrl = instaMojoTokenUrl;
+//	}
+//	
+//	@Value("${instaMojoClientId}")
+//	public void setInstaMojoClientId(String instaMojoClientId) {
+//		this.instaMojoClientId = instaMojoClientId;
+//	}
+//	
+//	@Value("${instaMojoSecretKey}")
+//	public void setInstaMojoSecretKey(String instaMojoSecretKey) {
+//		this.instaMojoSecretKey = instaMojoSecretKey;
+//	}
 
     public PaymentOrder getOrder() {
 		return this.order;

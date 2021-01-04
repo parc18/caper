@@ -1,8 +1,14 @@
 package com.khelacademy.www.pojos;
 
-public class ApiFormatter<T> {
+import java.io.Serializable;
 
-    private Integer code;
+public class ApiFormatter<T> implements Serializable{
+
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Integer code;
     private String result;
     private T response;
     private String error;

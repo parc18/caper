@@ -13,7 +13,34 @@ public class User {
     private String welcomeDate;
     private String sessionValue;
     private String userName;
-    private Long userIdL;
+    private Integer gameId;
+    private String underX;
+    private Integer done;
+    public Integer getGameId() {
+		return gameId;
+	}
+
+	public void setGameId(Integer gameId) {
+		this.gameId = gameId;
+	}
+
+	public String getUnderX() {
+		return underX;
+	}
+
+	public void setUnderX(String underX) {
+		this.underX = underX;
+	}
+
+	public Integer getDone() {
+		return done;
+	}
+
+	public void setDone(Integer done) {
+		this.done = done;
+	}
+
+	private Long userIdL;
 
     public String getEmail() {
         return email;

@@ -39,7 +39,10 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,7 +69,9 @@ import com.khelacademy.daoImpl.EventDaoImpl;
 import com.khelacademy.daoImpl.HomeDaoImpl;
 import com.khelacademy.daoImpl.SportsDaoImpl;
 import com.khelacademy.daoImpl.UserDaoImpl;
+import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.model.JwtResponse;
+import com.khelacademy.www.payments.RazorPayPayment;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.Event;
@@ -96,12 +101,16 @@ public class ApiEndpoint {
 	
 	@Autowired
 	UserDao userDao;
+	
+	@Autowired
+	RazorPayPayment razorPayPayment;
 
 	@RequestMapping(value = "/ping", method = RequestMethod.GET)
     public ResponseEntity<?> ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
     	LOGGER.debug("Server is running Fine Check DB credentials");
     	//ßßßUserDao userDao = new UserDaoImpl();
-    	userDao.getJwt("manish", "");
+    	//userDao.getJwt("manish", "");
+    	razorPayPayment.order(null);
       	ApiFormatter<String>  events= ServiceUtil.convertToSuccessResponse("ok");
         return ResponseEntity.ok(events);
     }
@@ -174,18 +183,22 @@ public class ApiEndpoint {
         return Response.ok(new GenericEntity<ApiFormatter<User>>(usr) {
         }).build();
     }
-    @ApiOperation("Start Booking")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
-    @POST
-    @Path("/book_event")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response book_event(@RequestBody BookingRequestObject bookingRequestObject) throws SQLException {
+    @RequestMapping(value = "/book_event", method = RequestMethod.POST)
+    public ResponseEntity<?> book_event(@RequestBody BookingRequestObject bookingRequestObject) throws SQLException {
+    	SecurityContext context = SecurityContextHolder.getContext();
+		String userName = context.getAuthentication().getName();
+		BasicUserDetails user = userDao.getUserByUserName(userName);
+		bookingRequestObject.setUserId((int) user.getId());
+		bookingRequestObject.setEmail(user.getEmail());
+		bookingRequestObject.setPhone(user.getPhone());
+		bookingRequestObject.setName(userName);
     	PaymentRequestValidator paymentRequestValidator = new PaymentRequestValidator();
     	if(paymentRequestValidator.validate(bookingRequestObject)) {
     		BookEventDao book = new BookEventDaoImpl();
     		if(bookingRequestObject.getPriceDetail().size() == 1 && bookingRequestObject.getPriceDetail().get(0).getQuantity() == 1 && bookingRequestObject.getPriceDetail().get(0).getPlayerNames().size() ==1) {
     			try {
+    				//ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+    				//return ResponseEntity.status(HttpStatus.OK).body(success);
 					return book.bookSingleTicket(bookingRequestObject,true);
 				} catch (UnsupportedEncodingException e) {
 	
@@ -204,9 +217,12 @@ public class ApiEndpoint {
     	}
 
 		MyErrors error = new MyErrors("Technical Problem");
-    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
-        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
-        }).build();
+		//ApiFormatter<MyErrors>  err= ServiceUtil.convertToFailureResponse(error, "true", 500);
+       // return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+       // }).build();
+        
+		ApiFormatter<MyErrors> success = ServiceUtil.convertToSuccessResponse(error);
+		return ResponseEntity.status(HttpStatus.OK).body(success);
     }
     
     @ApiOperation("verify OTP request")
@@ -309,13 +325,9 @@ public class ApiEndpoint {
         }
         return Response.ok("{\"message\":\"success\"}").build();
     }
-    @ApiOperation("instamojo payment user")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})
-    @GET
-    @Path("/payment_status")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response paymentStatus(@QueryParam("paymentId") String paymentId) throws SQLException {
+
+    @RequestMapping(value = "/payment_status", method = RequestMethod.GET)
+    public ResponseEntity<?> paymentStatus(@QueryParam("paymentId") String paymentId) throws SQLException {
     	Instamojo api = null;
         try {
             // gets the reference to the instamojo api
@@ -333,12 +345,16 @@ public class ApiEndpoint {
 		}
 
         // print the status of the payment order.
-		
-        System.out.println(paymentOrderDetailsResponse.getStatus().toString());
-		MyErrors error = new MyErrors(paymentOrderDetailsResponse.getStatus().toString());
-    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToSuccessResponse(error);
-        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
-        }).build();
+//		
+//        System.out.println(paymentOrderDetailsResponse.getStatus().toString());
+//		MyErrors error = new MyErrors(paymentOrderDetailsResponse.getStatus().toString());
+//    	ApiFormatter<MyErrors>  err= ServiceUtil.convertToSuccessResponse(error);
+//        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(err) {
+//        }).build();
+        
+		MyErrors err = new MyErrors(paymentOrderDetailsResponse.getStatus().toString());
+		ApiFormatter<MyErrors> success = ServiceUtil.convertToSuccessResponse(err);
+		return ResponseEntity.status(HttpStatus.OK).body(success);
     }
     @ApiOperation("instamojo webhook")
     @ApiResponses({@ApiResponse(code = 200, message = "OK", response = String.class)})

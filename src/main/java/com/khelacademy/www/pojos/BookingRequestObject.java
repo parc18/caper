@@ -1,14 +1,20 @@
 package com.khelacademy.www.pojos;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class BookingRequestObject {
+public class BookingRequestObject implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Integer userId;
 	private Integer eventId;
 	private String email;
 	private String phone;
 	private Integer totalAmount;
 	private Integer bookingId;
+	private String name;
 	public Integer getTotalAmount() {
 		return totalAmount;
 	}
@@ -60,5 +66,11 @@ public class BookingRequestObject {
 				+ eventId + ", email=" + email + ", phone=" + phone
 				+ ", totalAmount=" + totalAmount + ", priceDetail="
 				+ priceDetail.toString() + "]";
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 }

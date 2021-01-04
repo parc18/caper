@@ -1,4 +1,5 @@
 package com.khelacademy.daoImpl;
+import java.util.Base64;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -12,6 +13,11 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.instamojo.wrapper.model.PaymentOrder;
 import com.instamojo.wrapper.response.CreatePaymentOrderResponse;
@@ -31,28 +37,30 @@ import com.khelacademy.www.utils.DBArrow;
 import com.khelacademy.www.utils.InstamojoPaymentHelper;
 import com.khelacademy.www.utils.NoOfTickerCalculator;
 import com.khelacademy.www.utils.SMSService;
-
+@Component
+@Transactional
 public class BookEventDaoImpl implements BookEventDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
+
     DBArrow SQLArrow = DBArrow.getArrow();
 	@Override
-	public Response bookSingleTicket(BookingRequestObject bookingRequestObject, boolean isSingle) throws UnsupportedEncodingException {
-		User user = new User();
+	public ResponseEntity<?>  bookSingleTicket(BookingRequestObject bookingRequestObject, boolean isSingle) throws UnsupportedEncodingException {
+//		User user = new User();
 		UserDao userDao = new UserDaoImpl();
-		if(isSingle)
-			user.setFirstName(bookingRequestObject.getPriceDetail().get(0).getPlayerNames().get(1).toString());
-		else
-			user.setFirstName("khelacademyPlayer");
-		user.setLastName("");
-		user.setCity("");
-		user.setAddress("");
-		user.setContactNumber(bookingRequestObject.getPhone());
-		user.setEmail(bookingRequestObject.getEmail());
-		user.setStatus(UserStatus.INITIATED.toString());
+//		if(isSingle)
+//			user.setFirstName(bookingRequestObject.getPriceDetail().get(0).getPlayerNames().get(1).toString());
+//		else
+//			user.setFirstName("khelacademyPlayer");
+//		user.setLastName("");
+//		user.setCity("");
+//		user.setAddress("");
+//		user.setContactNumber(bookingRequestObject.getPhone());
+//		user.setEmail(bookingRequestObject.getEmail());
+//		user.setStatus(UserStatus.INITIATED.toString());
 		CreatePaymentOrderResponse response = null;
 		try {
-			
-			if(userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.REGISTRED_SUCCESSFULLY.toString()) || userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.EXISTS.toString())){
+			if(true) {
+//			if(userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.REGISTRED_SUCCESSFULLY.toString()) || userDao.registerUser(user).equalsIgnoreCase(PresenceStatus.EXISTS.toString())){
 //		        String TXN_ID = Long.toString(System.nanoTime());
 //		        byte[] bytesOfMessage = TXN_ID.getBytes("UTF-8");
 //
@@ -118,15 +126,15 @@ public class BookEventDaoImpl implements BookEventDao {
 	            		statement = SQLArrow.getPreparedStatementForId("INSERT INTO ticket  (event_id, booking_id, user_id ) values ( ?, ?, ?)");
 	            		statement.setInt(1, bookingRequestObject.getEventId());
 	            		statement.setInt(2, bookingId);
-	            		statement.setInt(3, userId);
+	            		statement.setInt(3, bookingRequestObject.getUserId());
 	            		if(SQLArrow.fireBowfishing(statement) >= 1) {
 	            			
 	        				PaymentOrder order = new PaymentOrder();
 	        				//order.setId(Integer.toString(bookingId));
-	        		        order.setName(user.getFirstName());
-	        		        order.setEmail(user.getEmail());
-	        		        order.setPhone(user.getContactNumber());
-	        		        order.setDescription("Booking a event for  : " + user.getContactNumber() + " and Event Id " + bookingRequestObject.getEventId());
+	        		        order.setName(bookingRequestObject.getName());
+	        		        order.setEmail(bookingRequestObject.getEmail());
+	        		        order.setPhone(bookingRequestObject.getPhone());
+	        		        order.setDescription("Booked an event for  : " + bookingRequestObject.getName() + " and Event Id " + bookingRequestObject.getEventId());
 	        		        order.setCurrency("INR");
 	        		        order.setAmount((double) bookingRequestObject.getTotalAmount());
 	        		        order.setRedirectUrl(Constants.REDIRECT_URL);
@@ -155,10 +163,13 @@ public class BookEventDaoImpl implements BookEventDao {
 	            			
 	            		}else{
 	            			SQLArrow.rollBack(null);
+	            			
+	            			
 	            			MyErrors err = new MyErrors("Could not Book Ticket for user :" + userId);
 	            	    	ApiFormatter<MyErrors>  res= ServiceUtil.convertToFailureResponse(err, "true", 500);
-	            	        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(res) {
-	            	        }).build();
+	            			return ResponseEntity.status(HttpStatus.OK).body(res);
+	            	       // return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(res) {
+	            	       // }).build();
 	            		}
 	            		
 	            	}
@@ -175,14 +186,17 @@ public class BookEventDaoImpl implements BookEventDao {
 //    	ApiFormatter<CreatePaymentOrderResponse>  res= ServiceUtil.convertToSuccessResponse(response);
 //        return Response.ok(new GenericEntity<ApiFormatter<CreatePaymentOrderResponse>>(res) {
 //        }).build();
+		
 		MyErrors err = new MyErrors(response.getPaymentOptions().getPaymentUrl().toString());
-    	ApiFormatter<MyErrors>  paymentUrl= ServiceUtil.convertToSuccessResponse(err);
-        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(paymentUrl) {
-        }).build();
+		ApiFormatter<MyErrors> success = ServiceUtil.convertToSuccessResponse(err);
+		return ResponseEntity.status(HttpStatus.OK).body(success);
+//    	ApiFormatter<MyErrors>  paymentUrl= ServiceUtil.convertToSuccessResponse(err);
+//        return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(paymentUrl) {
+//        }).build();
 	}
 
 	@Override
-	public Response bookMultipleTicket(BookingRequestObject bookingRequestObject) {
+	public  ResponseEntity<?>  bookMultipleTicket(BookingRequestObject bookingRequestObject) {
 
 		User user = new User();
 		UserDao userDao = new UserDaoImpl();
