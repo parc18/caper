@@ -23,6 +23,7 @@ import com.instamojo.wrapper.model.PaymentOrder;
 import com.instamojo.wrapper.response.CreatePaymentOrderResponse;
 import com.khelacademy.dao.BookEventDao;
 import com.khelacademy.dao.UserDao;
+import com.khelacademy.model.BasicUserDetails;
 import com.khelacademy.www.pojos.ApiFormatter;
 import com.khelacademy.www.pojos.BookingRequestObject;
 import com.khelacademy.www.pojos.MyErrors;
@@ -43,8 +44,12 @@ public class BookEventDaoImpl implements BookEventDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
 
     DBArrow SQLArrow = DBArrow.getArrow();
+    
+    @Autowired
+    UserDaoImpl UserDao;
+    
 	@Override
-	public ResponseEntity<?>  bookSingleTicket(BookingRequestObject bookingRequestObject, boolean isSingle) throws UnsupportedEncodingException {
+	public ResponseEntity<?>  bookSingleTicket(BookingRequestObject bookingRequestObject, boolean isSingle) throws Exception {
 //		User user = new User();
 		UserDao userDao = new UserDaoImpl();
 //		if(isSingle)
@@ -105,19 +110,25 @@ public class BookEventDaoImpl implements BookEventDao {
 	            	
 	            	
 	            	statement = SQLArrow.getPreparedStatement(SQLString.toString());
+	            	BasicUserDetails basicUser = null;
 	            	if(SQLArrow.fireBowfishing(statement) >= 1) {
-	            		int userId = 0;
-	            		statement = SQLArrow.getPreparedStatement("SELECT id FROM user where phone = ?");
-	            		statement.setString(1, bookingRequestObject.getPhone());
-	                    try (ResultSet rs1 = SQLArrow.fire(statement)) {
-	                        while (rs1.next()) {
-	                        	userId = rs1.getInt("id");
-	                        }
-	                        bookingRequestObject.setUserId(userId);
-	                    }catch(Exception e) {
-	                    	e.printStackTrace();
-	                    	throw e;
-	                    }
+//	            		int userId = 0;
+	            		basicUser = UserDao.getUserByPhone(bookingRequestObject.getPhone());
+//	            		statement = SQLArrow.getPreparedStatement("SELECT id FROM basic_user_detail where phone = ?");
+//	            		statement.setString(1, bookingRequestObject.getPhone());
+//	                    try (ResultSet rs1 = SQLArrow.fire(statement)) {
+//	                        while (rs1.next()) {
+//	                        	userId = rs1.getInt("id");
+//	                        }
+//	                        bookingRequestObject.setUserId(userId);
+//	                    }catch(Exception e) {
+//	                    	e.printStackTrace();
+//	                    	throw e;
+//	                    }
+	            		if(basicUser == null)
+	            			throw new Exception("NO user found");
+	            		bookingRequestObject.setUserId((int)basicUser.getId());
+	            		bookingRequestObject.setUserName(basicUser.getUserName());
 	    				if(!userDao.recordTempUsers(bookingRequestObject).equals(PresenceStatus.ALL_TEMP_USER_SUCCESS.toString())){
 	    					LOGGER.error("TEMP USERS GOT FUCKED FOR SOME REASON");
 	    					SQLArrow.rollBack(null);
@@ -165,7 +176,7 @@ public class BookEventDaoImpl implements BookEventDao {
 	            			SQLArrow.rollBack(null);
 	            			
 	            			
-	            			MyErrors err = new MyErrors("Could not Book Ticket for user :" + userId);
+	            			MyErrors err = new MyErrors("Could not Book Ticket for user :" + basicUser.getUsername());
 	            	    	ApiFormatter<MyErrors>  res= ServiceUtil.convertToFailureResponse(err, "true", 500);
 	            			return ResponseEntity.status(HttpStatus.OK).body(res);
 	            	       // return Response.ok(new GenericEntity<ApiFormatter<MyErrors>>(res) {

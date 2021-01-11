@@ -28,7 +28,7 @@ public interface UserDao {
 
 	BasicUserDetails getJwt(String username, String password);
 	
-	public ResponseEntity<?> FirstTimeRegistration(UserDto userReq) throws Exception;
+	public ResponseEntity<?> firstTimeRegistration(UserDto userReq) throws Exception;
 	
 	public ResponseEntity<?> userLogin(UserDto userReq) throws Exception;
 	
@@ -55,5 +55,7 @@ public interface UserDao {
 	public BasicUserDetails getUserByUserName(String userName);
 	
 	public User getAdvanceUserByUserName(String userName);
+	
+	public BasicUserDetails getUserByPhone(String phone);
 	
 }

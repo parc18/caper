@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import com.khelacademy.dao.MatchDraw;
+import com.khelacademy.dao.UserDao;
 import com.khelacademy.document.MatchFixture;
 import com.khelacademy.document.PoolFixture;
 import com.khelacademy.document.UserVersus;
+import com.khelacademy.dto.FixtureDto;
 import com.khelacademy.repository.MatchRepo;
 import com.khelacademy.www.pojos.DrawHelper;
 import com.khelacademy.www.pojos.Fixtures;
@@ -41,6 +45,8 @@ import com.khelacademy.www.utils.EnglishNumberToWords;
 public class MatchDrawImpl implements MatchDraw {
 	@Autowired
 	MongoTemplate mongoTemplate;
+	@Autowired
+	UserDaoImpl userDao;
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
 	static int counterForPools = 1;
 	static int startIndex = 0;
@@ -404,6 +410,30 @@ public class MatchDrawImpl implements MatchDraw {
 		mongoTemplate.save(matchFixtureOriginal);
 		return matchFixtureOriginal;
 		//return null;
+	}
+
+	@Override
+	public void setWinner(FixtureDto fixtureDto) throws Exception {
+		MatchFixture fixture = checkOnceForFixture(fixtureDto.getEventId());
+		if(fixture == null)
+			throw new Exception("No Fixture combination found");
+		//User user = userDao.getAdvanceUserByUserName(fixtureDto.getWinnerUserName());
+		//winner.setUserId(user.getEntity().);
+		if(fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).getUser1().getUserName().equalsIgnoreCase(fixtureDto.getWinnerUserName())) {
+			if(fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).getUser2().getUserName().equalsIgnoreCase(fixtureDto.getLooserUserName())) {
+				fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).setWinner(fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).getUser1());
+			} else {
+				throw new Exception("No fixture found for these users and rounds");
+			}
+		} else if(fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).getUser2().getUserName().equalsIgnoreCase(fixtureDto.getWinnerUserName())) {
+			if(fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).getUser1().getUserName().equalsIgnoreCase(fixtureDto.getLooserUserName())) {
+				fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).setWinner(fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).getUser2());
+			} else {
+				throw new Exception("No fixture found for these users and rounds");
+			}
+		}
+		fixture.getCategoryWise().get(fixtureDto.getCatName()).get(fixtureDto.getPoolName()).get(fixtureDto.getRound()).get(fixtureDto.getPosition()).setAdministeredBy(fixtureDto.getAdministratedBy());
+		mongoTemplate.save(fixture);
 	}
 
 }

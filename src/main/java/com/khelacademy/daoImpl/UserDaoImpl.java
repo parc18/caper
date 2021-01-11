@@ -65,9 +65,11 @@ public class UserDaoImpl implements UserDao {
 	private JwtUserDetailsService userDetailsService;
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
-
+	// deprecated mthod
 	@Override
 	public Response getUserById(Integer userId) throws SQLException {
+		
+		/// deprecated method	
 		LOGGER.info("GET USER IS CALLED FOR ID: " + userId);
 		// ApiFormatter<List<User>> userResponse=null;
 		PreparedStatement statement;
@@ -110,7 +112,7 @@ public class UserDaoImpl implements UserDao {
 			}).build();
 		}
 	}
-
+	// deprecated mthod
 	@Override
 	public Response getUserByEmailId(Integer emailId) {
 		return null;
@@ -132,7 +134,7 @@ public class UserDaoImpl implements UserDao {
 
 		return true;
 	}
-
+	// deprecated mthod
 	@Override
 	public String registerUser(User userDetails) {
 		PreparedStatement statement = SQLArrow.getPreparedStatement("SELECT  * from user  WHERE phone =?");
@@ -176,7 +178,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public String recordTempUsers(BookingRequestObject bookingRequestObject) throws SQLException {
 		StringBuffer SQLString = new StringBuffer(
-				"INSERT INTO temp_users  (NAME, USER_ID, PRICE_ID, booking_id ,game_user_id)  values ");
+				"INSERT INTO temp_users  (NAME, USER_ID, user_name, PRICE_ID, booking_id ,game_user_id)  values ");
 		BookEventDaoImpl bookEventDaoImpl = new BookEventDaoImpl();
 		int gameId = bookEventDaoImpl.getLastUserGameId();
 		gameId++;
@@ -190,7 +192,7 @@ public class UserDaoImpl implements UserDao {
 					for (int y = 1; y <= p.getQuantity(); y++) {
 						if (flag) {
 							vals.append("(\"" + p.getPlayerNames().get(y).toString() + "\","
-									+ bookingRequestObject.getUserId() + "," + p.getPriceId() + ","
+									+ bookingRequestObject.getUserId() + "," + bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 						} else {
 							vals.append(", (\"" + p.getPlayerNames().get(y).toString() + "\","
@@ -204,17 +206,17 @@ public class UserDaoImpl implements UserDao {
 					for (int y = 1; y <= p.getQuantity(); y *= 2) {
 						if (flag) {
 							vals.append("(\"" + p.getPlayerNames().get(y).toString() + "\","
-									+ bookingRequestObject.getUserId() + "," + p.getPriceId() + ","
+									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 							vals.append(",(\"" + p.getPlayerNames().get(y + 1).toString() + "\","
-									+ bookingRequestObject.getUserId() + "," + p.getPriceId() + ","
+									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 						} else {
 							vals.append(", (\"" + p.getPlayerNames().get(y).toString() + "\","
-									+ bookingRequestObject.getUserId() + "," + p.getPriceId() + ","
+									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 							vals.append(",(\"" + p.getPlayerNames().get(y + 1).toString() + "\","
-									+ bookingRequestObject.getUserId() + "," + p.getPriceId() + ","
+									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 						}
 						flag = false;
@@ -251,7 +253,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public ResponseEntity<?> FirstTimeRegistration(UserDto userReq) throws Exception {
+	public ResponseEntity<?> firstTimeRegistration(UserDto userReq) throws Exception {
 		if (!StringUtils.isEmpty((userReq.getEmail()))) {
 			return signUpUsingEmail(userReq);
 		} else if (!StringUtils.isEmpty((userReq.getPhone()))) {
@@ -303,22 +305,22 @@ public class UserDaoImpl implements UserDao {
 				ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
 				return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 			}
-			BasicUserDetails user = new BasicUserDetails(userReq.getEmail(), passWord,
+			BasicUserDetails basicuserDetails = new BasicUserDetails(userReq.getEmail(), passWord,
 					UserConstants.USER_SIGNUP_CAPTURED);
 			try {
 				Integer otp = EmailService.sendEmailOTP("null", userReq.getEmail());
-				user.setOtp(111111);
+				basicuserDetails.setOtp(111111);
 				// user.setOtp(otp);
-				user.setEmailVerified(0);
-				user.setPhoneVerified(0);
+				basicuserDetails.setEmailVerified(0);
+				basicuserDetails.setPhoneVerified(0);
 				long timeNow = Calendar.getInstance().getTimeInMillis() + 600000;
-				user.setOtpExpire(new Timestamp(timeNow));
+				basicuserDetails.setOtpExpire(new Timestamp(timeNow));
 			} catch (Exception e) {
 				LOGGER.error("Not able to send otp email", e);
-				user.setOtp(null);
+				basicuserDetails.setOtp(null);
 			}
 
-			session.save(user);
+			session.save(basicuserDetails);
 		} else {
 			MyErrors error = new MyErrors("Password mismatch or invalid email id");
 			ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
@@ -499,7 +501,19 @@ public class UserDaoImpl implements UserDao {
 		}
 		return null;
 	}
-
+	@Override
+	public BasicUserDetails getUserByPhone(String phone) {
+		Session session = this.sessionFactory.getCurrentSession();
+		String hql = "FROM BasicUserDetails E WHERE E.phone =:phone";
+		@SuppressWarnings("unchecked")
+		Query<BasicUserDetails> query = session.createQuery(hql);
+		query.setString("phone", phone);
+		List<BasicUserDetails> results = query.list();
+		if (results != null && results.size() == 1) {
+			return results.get(0);
+		}
+		return null;
+	}
 	@Override
 	public String getUserNameByEmail(String email) {
 		Session session = this.sessionFactory.getCurrentSession();
@@ -572,6 +586,7 @@ public class UserDaoImpl implements UserDao {
 		}
 		return null;
 	}
+	
 
 	@Override
 	public List<Invitation> getInvitations(String userId, String status) {
@@ -680,7 +695,7 @@ public class UserDaoImpl implements UserDao {
 		Query<AdvancedUserDetail> query = session.createQuery(hql);
 		query.setString("userName", userName);
 		List<AdvancedUserDetail> results = query.list();
-		if(results.size() > 0) {
+		if(results.size() == 1) {
 			User user =  new User();
 			String[] splitEmail = results.get(0).getEmail().split("@");
 			if(results.get(0).getEmail().length()>=2)

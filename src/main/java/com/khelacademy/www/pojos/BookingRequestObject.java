@@ -15,6 +15,7 @@ public class BookingRequestObject implements Serializable{
 	private Integer totalAmount;
 	private Integer bookingId;
 	private String name;
+	private String userName;
 	public Integer getTotalAmount() {
 		return totalAmount;
 	}
@@ -72,5 +73,11 @@ public class BookingRequestObject implements Serializable{
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }

@@ -41,7 +41,7 @@ public class UserController {
 	@RequestMapping(value = "user/signup", method = RequestMethod.POST)
 	public ResponseEntity<?> userSignUp(@RequestBody UserDto userRequest, @RequestHeader("Authorization") String auth) throws Exception {
 		if(UserUtils.validateBasicAuth(auth)) {
-			return userDao.FirstTimeRegistration(userRequest);
+			return userDao.firstTimeRegistration(userRequest);
 		} else {
 			throw new Exception("INVALID_CREDENTIALS", new BadCredentialsException(auth));
 		}

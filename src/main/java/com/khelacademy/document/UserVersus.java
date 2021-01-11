@@ -13,6 +13,7 @@ public class UserVersus {
 	private Integer round;
 	private Integer totalRound;
 	private Date startTime;
+	private String administeredBy;
 	public User getUser1() {
 		return user1;
 	}
@@ -48,6 +49,12 @@ public class UserVersus {
 	}
 	public void setTotalRound(Integer totalRound) {
 		this.totalRound = totalRound;
+	}
+	public String getAdministeredBy() {
+		return administeredBy;
+	}
+	public void setAdministeredBy(String administeredBy) {
+		this.administeredBy = administeredBy;
 	}
 	
 

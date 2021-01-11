@@ -15,6 +15,7 @@ import com.khelacademy.www.pojos.Fixtures;
 public class MatchFixture implements Cloneable {
 	@Id
 	private String id;
+	private String accesseeUserName;
 	private Integer eventId;
 	private Integer round;
 	private Integer totalRound;
@@ -54,5 +55,13 @@ public class MatchFixture implements Cloneable {
 
 	public void setCategoryWise(Map<String, ConcurrentHashMap<String, List<List<UserVersus>>>> categoryWise) {
 		this.categoryWise = categoryWise;
+	}
+
+	public String getAccesseeUserName() {
+		return accesseeUserName;
+	}
+
+	public void setAccesseeUserName(String accesseeUserName) {
+		this.accesseeUserName = accesseeUserName;
 	}
 }

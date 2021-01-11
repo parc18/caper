@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,16 +34,21 @@ public class FixtureController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FixtureController.class);
     @RequestMapping(value = "/eventusers", method = RequestMethod.GET)
     public ResponseEntity<?> geteventsUsers(@RequestParam("event_id") Integer eventId){
-        
+    	SecurityContext context = SecurityContextHolder.getContext();
+    	String userName = context.getAuthentication().getName();
         String err = "";
         try {
         	ApiFormatter<MatchFixture>  events;
         	MatchFixture mf = matchDraw.checkOnceForFixture(eventId);
-        	if(mf!=null)
+        	if(mf!=null) {
+        		mf.setAccesseeUserName(userName);
         		events = ServiceUtil.convertToSuccessResponse(mf);
-        	else
-            	events= ServiceUtil.convertToSuccessResponse(matchDraw.makeFixture(eventId, matchDraw.groupPlayers(eventId)));
-            //return Response.ok(new GenericEntity<ApiFormatter<Map<String, List<Fixtures>>>>(events) {
+        	} else {
+        		mf = matchDraw.makeFixture(eventId, matchDraw.groupPlayers(eventId));
+        		mf.setAccesseeUserName(userName);
+            	events= ServiceUtil.convertToSuccessResponse(mf);
+        	}
+        	//return Response.ok(new GenericEntity<ApiFormatter<Map<String, List<Fixtures>>>>(events) {
            // }).build();
 			//MyErrors error = new MyErrors(e.getMessage());
 			//ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
@@ -65,14 +72,16 @@ public class FixtureController {
     }
     @RequestMapping(value = "/eventusers-update", method = RequestMethod.GET)
     public ResponseEntity<?> geteventsUsersUpdate(@RequestParam("event_id") Integer eventId){
-        
+    	SecurityContext context = SecurityContextHolder.getContext();
+    	String userName = context.getAuthentication().getName();
         String err = "";
         try {
-        	ApiFormatter<MatchFixture>  events;
+        	ApiFormatter<MatchFixture> events;
         	MatchFixture mf = matchDraw.checkOnceForFixture(eventId);
-        	if(mf!=null)	
+        	if(mf!=null) {	
+        		mf.setAccesseeUserName(userName);
         		events = ServiceUtil.convertToSuccessResponse(matchDraw.updateFixtureForNextRound(mf));
-        	else
+        	} else
         		throw new Exception("No event found");
             //return Response.ok(new GenericEntity<ApiFormatter<Map<String, List<Fixtures>>>>(events) {
            // }).build();

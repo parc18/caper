@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import com.khelacademy.www.pojos.BookingRequestObject;
 
 public interface BookEventDao {
-	ResponseEntity<?>  bookSingleTicket(BookingRequestObject bookingRequestObject, boolean b) throws UnsupportedEncodingException;
+	ResponseEntity<?>  bookSingleTicket(BookingRequestObject bookingRequestObject, boolean b) throws UnsupportedEncodingException, Exception;
 	ResponseEntity<?>  bookMultipleTicket(BookingRequestObject bookingRequestObject);
 	boolean UpdateStatusFromWbhook(String id, String status);
 	// NOT IN USE

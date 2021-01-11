@@ -200,17 +200,14 @@ public class ApiEndpoint {
     				//ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
     				//return ResponseEntity.status(HttpStatus.OK).body(success);
 					return book.bookSingleTicket(bookingRequestObject,true);
-				} catch (UnsupportedEncodingException e) {
-	
-					// TODO Auto-generated catch block
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
     		}else{
 				try {
 					return book.bookSingleTicket(bookingRequestObject, false);
-				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
     		}
     		

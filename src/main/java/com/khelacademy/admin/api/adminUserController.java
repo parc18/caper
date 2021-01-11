@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.khelacademy.dao.MatchDao;
+import com.khelacademy.daoImpl.MatchDrawImpl;
+import com.khelacademy.dto.FixtureDto;
 import com.khelacademy.dto.MatchDto;
 import com.khelacademy.model.Match;
 import com.khelacademy.www.api.TeamController;
@@ -28,6 +30,9 @@ public class adminUserController {
 	
 	@Autowired
 	MatchDao matchDao;
+	
+	@Autowired
+	MatchDrawImpl matchDraw;
 	
 	@RequestMapping(value = "match/start", method = RequestMethod.POST)
 	public ResponseEntity<?> startMatch(@RequestBody MatchDto matchDto) {
@@ -111,5 +116,32 @@ public class adminUserController {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
 		}
 		
+	}
+	@RequestMapping(value = "update-winner", method = RequestMethod.POST)
+	public ResponseEntity<?> updateWinner(@RequestBody FixtureDto fixtureDto) {
+		SecurityContext context = SecurityContextHolder.getContext();
+		LOGGER.info("lols" + context.getAuthentication().getAuthorities().toString());
+		Boolean process = false;
+	    for (GrantedAuthority auth : context.getAuthentication().getAuthorities()) {
+	        if ("ROLE_admin".equalsIgnoreCase(auth.getAuthority()))
+	            process = true;
+	    }
+	    if(!process) {
+	    	MyErrors error = new MyErrors("You are not authorized");
+			ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+	    }
+		String userName = context.getAuthentication().getName();
+		fixtureDto.setAdministratedBy(userName);
+		try {
+			matchDraw.setWinner(fixtureDto);
+			ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
+			return ResponseEntity.status(HttpStatus.OK).body(success);
+		}catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			MyErrors error = new MyErrors(e.getMessage());
+			ApiFormatter<MyErrors> err = ServiceUtil.convertToFailureResponse(error, "true", 406);
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(err);
+		}
 	}
 }

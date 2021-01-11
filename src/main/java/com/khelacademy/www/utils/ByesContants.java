@@ -1,6 +1,9 @@
 package com.khelacademy.www.utils;
 
 public class ByesContants {
+	
+	public static final int intialRating = 1600;
+	
 	public static final int poolSize = 128;
 	
     public static final String[] POOL = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
