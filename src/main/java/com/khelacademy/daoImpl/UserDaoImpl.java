@@ -192,7 +192,7 @@ public class UserDaoImpl implements UserDao {
 					for (int y = 1; y <= p.getQuantity(); y++) {
 						if (flag) {
 							vals.append("(\"" + p.getPlayerNames().get(y).toString() + "\","
-									+ bookingRequestObject.getUserId() + "," + bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
+									+ bookingRequestObject.getUserId() + ",\"" + bookingRequestObject.getUserName()+ "\"," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 						} else {
 							vals.append(", (\"" + p.getPlayerNames().get(y).toString() + "\","
@@ -205,18 +205,18 @@ public class UserDaoImpl implements UserDao {
 				} else {
 					for (int y = 1; y <= p.getQuantity(); y *= 2) {
 						if (flag) {
-							vals.append("(\"" + p.getPlayerNames().get(y).toString() + "\","
-									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
+							vals.append("(\"" + p.getPlayerNames().get(y).toString() + ",\""
+									+ bookingRequestObject.getUserName()+ "\"," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
-							vals.append(",(\"" + p.getPlayerNames().get(y + 1).toString() + "\","
-									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
+							vals.append(",(\"" + p.getPlayerNames().get(y + 1).toString() + "\",\""
+									+ bookingRequestObject.getUserName()+ "\"," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 						} else {
-							vals.append(", (\"" + p.getPlayerNames().get(y).toString() + "\","
-									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
+							vals.append(", (\"" + p.getPlayerNames().get(y).toString() + ",\""
+									+ bookingRequestObject.getUserName()+ "\","  + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
-							vals.append(",(\"" + p.getPlayerNames().get(y + 1).toString() + "\","
-									+ bookingRequestObject.getUserName()+ "," + p.getPriceId() + ","
+							vals.append(",(\"" + p.getPlayerNames().get(y + 1).toString() + ",\""
+									+ bookingRequestObject.getUserName()+ "\"," + p.getPriceId() + ","
 									+ bookingRequestObject.getBookingId() + "," + gameId + ")");
 						}
 						flag = false;

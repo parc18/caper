@@ -46,12 +46,11 @@ public class BookEventDaoImpl implements BookEventDao {
     DBArrow SQLArrow = DBArrow.getArrow();
     
     @Autowired
-    UserDaoImpl UserDao;
+    UserDaoImpl userDao;
     
 	@Override
 	public ResponseEntity<?>  bookSingleTicket(BookingRequestObject bookingRequestObject, boolean isSingle) throws Exception {
 //		User user = new User();
-		UserDao userDao = new UserDaoImpl();
 //		if(isSingle)
 //			user.setFirstName(bookingRequestObject.getPriceDetail().get(0).getPlayerNames().get(1).toString());
 //		else
@@ -113,7 +112,7 @@ public class BookEventDaoImpl implements BookEventDao {
 	            	BasicUserDetails basicUser = null;
 	            	if(SQLArrow.fireBowfishing(statement) >= 1) {
 //	            		int userId = 0;
-	            		basicUser = UserDao.getUserByPhone(bookingRequestObject.getPhone());
+	            		basicUser = userDao.getUserByPhone(bookingRequestObject.getPhone());
 //	            		statement = SQLArrow.getPreparedStatement("SELECT id FROM basic_user_detail where phone = ?");
 //	            		statement.setString(1, bookingRequestObject.getPhone());
 //	                    try (ResultSet rs1 = SQLArrow.fire(statement)) {

@@ -104,6 +104,9 @@ public class ApiEndpoint {
 	
 	@Autowired
 	RazorPayPayment razorPayPayment;
+	
+	@Autowired
+	BookEventDaoImpl book;
 
 	@RequestMapping(value = "/ping", method = RequestMethod.GET)
     public ResponseEntity<?> ping() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
@@ -194,7 +197,6 @@ public class ApiEndpoint {
 		bookingRequestObject.setName(userName);
     	PaymentRequestValidator paymentRequestValidator = new PaymentRequestValidator();
     	if(paymentRequestValidator.validate(bookingRequestObject)) {
-    		BookEventDao book = new BookEventDaoImpl();
     		if(bookingRequestObject.getPriceDetail().size() == 1 && bookingRequestObject.getPriceDetail().get(0).getQuantity() == 1 && bookingRequestObject.getPriceDetail().get(0).getPlayerNames().size() ==1) {
     			try {
     				//ApiFormatter<String> success = ServiceUtil.convertToSuccessResponse("success");
